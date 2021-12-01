@@ -9,15 +9,11 @@ def main
 end
 
 def solve_first(data)
-    bigger = 0
-    last = -1
-    data.each do |d|
-        bigger += 1 if d > last 
-        last = d
-    end
-    
-    bigger
+    (data.size - 1).times.filter do |index|
+        data[index + 1] > data[index] 
+    end.size
 end
+
 
 def solve_second(data)
     data.size.times.filter do |index| 
@@ -192,6 +188,7 @@ __END__
 346
 364
 369
+370
 358
 364
 363
