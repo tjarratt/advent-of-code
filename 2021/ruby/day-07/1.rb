@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-input = File.read('test.txt')
+input = File.read('input.txt')
             .split(',')
             .map(&:to_i)
 
