@@ -5,12 +5,13 @@ def main
     closes = [']', '}', ')', '>']
 
     completions = []
-    File.read("input.txt")
+    completions = File.read('input.txt')
         .split("\n")
-        .each do |line|
+        .map { _1.split('') }
+        .map do |line|
             stack = []
             corrupted = false
-            line.split('').each do |char|
+            line.each do |char|
                 if opens.include?(char)
                     stack << char
                 elsif char_closes?(char, stack)
@@ -20,14 +21,16 @@ def main
                     break
                 end
             end
-
-            completions << stack.reverse.map do |missing|
-                closes[opens.index(missing)]
-            end unless corrupted
+            [corrupted, stack]
         end
+        .reject {|corrupted, _| corrupted }
+        .map {|_, stack| stack }
+        .map { _1.reverse }
+        .map { _1.map {|m| closes[opens.index(m)] } }
 
-    completions.map! {|c| score(c) }.sort!
-    puts completions[completions.size.pred / 2]
+    puts completions.map! { score(_1) }
+                    .sort!
+                    .at(completions.size.pred / 2)
 end
 
 def score(completions) 
