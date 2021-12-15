@@ -95,6 +95,8 @@ def neighbors_of(point, grid)
     neighbors = []
     neighbors << [x + 1, y] unless x == max_x
     neighbors << [x, y + 1] unless y == max_y
+    neighbors << [x - 1, y] unless x == 0
+    neighbors << [x, y - 1] unless y == 0
 
     neighbors
 end
