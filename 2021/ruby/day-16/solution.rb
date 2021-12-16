@@ -1,30 +1,27 @@
 #!/usr/bin/env ruby
 
 def main
-=begin
-    part_1('test-1.txt')
-    part_1('test-2.txt')
-    part_1('test-3.txt')
-    part_1('test-4.txt')
-    part_1('test-5.txt')
-    part_1('test-6.txt')
-    part_1('test-7.txt')
-    
+    #part_1('test-1.txt')
+    #part_1('test-2.txt')
+    #part_1('test-3.txt')
+    #part_1('test-4.txt')
+    #part_1('test-5.txt')
+    #part_1('test-6.txt')
+    #part_1('test-7.txt')
     part_1('input.txt')
-=end
-    part_2('C200B40A82')
-    part_2('04005AC33890')
-    part_2('880086C3E88112')
-    part_2('CE00C43D881120')
-    part_2('D8005AC2A8F0')
-    part_2('F600BC2D8F')
-    part_2('9C005AC2F8F0')
-    part_2('9C0141080250320F1802104A08')
+
+    #part_2('C200B40A82')
+    #part_2('04005AC33890')
+    #part_2('880086C3E88112')
+    #part_2('CE00C43D881120')
+    #part_2('D8005AC2A8F0')
+    #part_2('F600BC2D8F')
+    #part_2('9C005AC2F8F0')
+    #part_2('9C0141080250320F1802104A08')
     part_2(File.read('input.txt'))
 end
 
 def part_1(filename)
-    puts filename
     bytes = File.read(filename)
         .split('')
         .map {|b| b.to_i(16).to_s(2).rjust(4, '0') }
@@ -45,7 +42,6 @@ def part_1(filename)
 end
 
 def part_2(input)
-    puts input
     bytes = input.split('')
                  .map {|b| b.to_i(16).to_s(2).rjust(4, '0') }
                  .join('')
@@ -61,8 +57,6 @@ def part_2(input)
     # ignore any trailing zeroes
 
     puts PacketBuilder.build(bytes).map(&:value).flatten.inject(:+)
-    puts
-
 end
 
 class PacketBuilder
