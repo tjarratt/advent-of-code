@@ -1,6 +1,29 @@
 #!/usr/bin/env ruby
 
-def main(filename)
+def main
+=begin
+    part_1('test-1.txt')
+    part_1('test-2.txt')
+    part_1('test-3.txt')
+    part_1('test-4.txt')
+    part_1('test-5.txt')
+    part_1('test-6.txt')
+    part_1('test-7.txt')
+    
+    part_1('input.txt')
+=end
+    part_2('C200B40A82')
+    part_2('04005AC33890')
+    part_2('880086C3E88112')
+    part_2('CE00C43D881120')
+    part_2('D8005AC2A8F0')
+    part_2('F600BC2D8F')
+    part_2('9C005AC2F8F0')
+    part_2('9C0141080250320F1802104A08')
+    part_2(File.read('input.txt'))
+end
+
+def part_1(filename)
     puts filename
     bytes = File.read(filename)
         .split('')
@@ -19,6 +42,27 @@ def main(filename)
 
     puts PacketBuilder.build(bytes).map(&:version).flatten.inject(:+)
     puts
+end
+
+def part_2(input)
+    puts input
+    bytes = input.split('')
+                 .map {|b| b.to_i(16).to_s(2).rjust(4, '0') }
+                 .join('')
+
+    # first 3 are the version
+    # next 3 are the package type
+    # literal value : next five start with 1 (keep reading)
+    #                 take the last four bytes
+    # next five start with 1 (keep reading)
+    #                 take the last four bytes
+    # next five start with 0 (last group)
+    #                 take the last four bytes
+    # ignore any trailing zeroes
+
+    puts PacketBuilder.build(bytes).map(&:value).flatten.inject(:+)
+    puts
+
 end
 
 class PacketBuilder
@@ -116,6 +160,27 @@ class OperatorPacket
         @version + @sub_packets.map(&:version).inject(:+)
     end
 
+    def value
+        case @type
+        when 0
+            @sub_packets.map(&:value).inject(:+)
+        when 1
+            @sub_packets.map(&:value).inject(:*)
+        when 2
+            @sub_packets.map(&:value).min
+        when 3
+            @sub_packets.map(&:value).max
+        when 5
+            @sub_packets.map(&:value).inject(:>) ? 1 : 0
+        when 6
+            @sub_packets.map(&:value).inject(:<) ? 1 : 0
+        when 7
+            @sub_packets.map(&:value).inject(:==) ? 1 : 0
+        else
+            raise 'wtf'
+        end
+    end
+
     def to_s
         "operator packet -> version (#{@version}) : type (#{@type}) : sub_packets (#{@sub_packets.map(&:to_s)})"
     end
@@ -130,17 +195,13 @@ class LiteralPacket
         @payload = payload
     end
 
+    def value
+        @payload
+    end
+
     def to_s
         "literal packet -> version (#{@version}) : type (#{@type}) : payload (#{@payload})"
     end
 end
 
-main('test-1.txt')
-main('test-2.txt')
-main('test-3.txt')
-main('test-4.txt')
-main('test-5.txt')
-main('test-6.txt')
-main('test-7.txt')
-
-main('input.txt')
+main
