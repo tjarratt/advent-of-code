@@ -48,5 +48,5 @@ def contains?(range, pos)
     range.last.include? pos.last
 end
 
-main('target area: x=20..30, y=-10..-5')
+#main('target area: x=20..30, y=-10..-5')
 main('target area: x=269..292, y=-68..-44')
