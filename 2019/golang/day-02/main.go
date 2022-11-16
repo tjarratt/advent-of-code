@@ -1,13 +1,23 @@
 package main
 
 import (
+	"log"
 	"os"
+	"runtime/pprof"
 	"strconv"
 	"strings"
-	"../intcode"
+
+	"github.com/tjarratt/advent-of-code/2019/golang/intcode"
 )
 
 func main() {
+	pprofFile, pprofErr := os.Create("cpu.pprof")
+	if pprofErr != nil {
+		log.Fatal(pprofErr)
+	}
+	pprof.StartCPUProfile(pprofFile)
+	defer pprof.StopCPUProfile()
+
 	part_one()
 	part_two()
 }
