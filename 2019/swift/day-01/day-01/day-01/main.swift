@@ -7,6 +7,7 @@ import Foundation
 
 func main() {
     part_one()
+    part_two()
 }
 
 func part_one() {
@@ -18,24 +19,42 @@ func part_one() {
         accum + fuel
     })
     
-    print(sum)
+    print("part one is", sum)
+}
+
+func part_two() {
+    let input = read(filename: "input")
+    
+    let sum = input.map { mass in
+        calculateFuelForRecursively(mass: mass)
+    }.reduce(0, { accum, fuel in
+        accum + fuel
+    })
+    
+    print("part two is", sum)
 }
 
 func calculateFuelFor(mass: Int) -> Int {
     return mass / 3 - 2
 }
 
-func read(filename: String) -> Array<Int> {
-    var list = Array<Int>()
+func calculateFuelForRecursively(mass: Int) -> Int {
+    var sum = 0
+    var fuel = calculateFuelFor(mass: mass)
     
-    let contents = try! String(contentsOfFile: filename, encoding: .utf8)
-    
-    contents.enumerateLines { line, _ in
-        let mass = try! Int(line, format: IntegerFormatStyle.number)
-        list.append(mass)
+    while fuel > 0 {
+        sum += fuel
+        fuel = calculateFuelFor(mass: fuel)
     }
     
-    return list
+    return sum
+}
+
+func read(filename: String) -> Array<Int> {
+    return try! String(contentsOfFile: filename, encoding: .utf8)
+        .components(separatedBy: "\n")
+        .filter { !$0.isEmpty }
+        .map { try! Int($0, format: .number) }
 }
 
 main()
