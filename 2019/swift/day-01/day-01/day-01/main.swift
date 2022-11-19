@@ -6,14 +6,17 @@
 import Foundation
 
 func main() {
-    print("Hello Advent of Code 2019")
-    
+    part_one()
+}
+
+func part_one() {
     let input = read(filename: "input")
-    var sum = 0
-    input.forEach { mass in
-        let fuel = calculateFuelFor(mass: mass)
-        sum += fuel
-    }
+    
+    let sum = input.map { mass in
+        calculateFuelFor(mass: mass)
+    }.reduce(0, { accum, fuel in
+        accum + fuel
+    })
     
     print(sum)
 }
