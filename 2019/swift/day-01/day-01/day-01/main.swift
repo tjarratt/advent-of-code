@@ -26,7 +26,7 @@ func part_two() {
     let input = read(filename: "input")
     
     let sum = input.map { mass in
-        calculateFuelForRecursively(mass: mass)
+        calculateFuelRecursivelyFor(mass: mass)
     }.reduce(0, { accum, fuel in
         accum + fuel
     })
@@ -38,7 +38,7 @@ func calculateFuelFor(mass: Int) -> Int {
     return mass / 3 - 2
 }
 
-func calculateFuelForRecursively(mass: Int) -> Int {
+func calculateFuelRecursivelyFor(mass: Int) -> Int {
     var sum = 0
     var fuel = calculateFuelFor(mass: mass)
     
