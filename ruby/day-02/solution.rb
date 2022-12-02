@@ -52,21 +52,25 @@ def decide_how_to_play(opponent, strategy)
 end
 
 def determine_round(opponent, player)
+  return outcome_for(opponent, player) + score_for(player)
+end
+
+def outcome_for(opponent, player)
   case [opponent, player]
   in ["C", "X"]
-    return 6 + score_for(player)
+    return 6
   in ["A", "Y"]
-    return 6 + score_for(player)
+    return 6
   in ["B", "Z"]
-    return 6 + score_for(player)
+    return 6
   in ["A", "X"]
-    return 3 + score_for(player)
+    return 3
   in ["B", "Y"]
-    return 3 + score_for(player)
+    return 3
   in ["C", "Z"]
-    return 3 + score_for(player)
+    return 3
   else
-    return score_for(player)
+    return 0
   end
 end
 
