@@ -22,7 +22,7 @@ def part_two
               .map { |plays| determine_round(*plays) }
               .inject(:+)
   
-  puts "solution for part 1 is #{score}"
+  puts "solution for part 2 is #{score}"
 end
 
 def decide_how_to_play(opponent, strategy)
