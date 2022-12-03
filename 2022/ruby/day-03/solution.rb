@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-require 'set'
 
 def main
   part_one
@@ -17,8 +16,7 @@ def part_one
            .split("\n")
            .map {|line| line.split('') }
            .map {|contents| contents.each_slice(contents.size / 2).to_a }
-           .map {|first, second| [Set.new(first), Set.new(second)] }
-           .map {|first, second| first.intersection(second).to_a.first }
+           .map {|rucksack| rucksack.inject(:&).first }
            .map {|item| priority_for(item) }
            .inject(:+)
 end
@@ -29,8 +27,7 @@ def part_two
            .map {|line| line.split('') }
            .each_slice(3)
            .to_a
-           .map {|group| group.map {|rucksack| Set.new(rucksack) } }
-           .map {|group| group[0].intersection(group[1]).intersection(group[2]).to_a.first }
+           .map {|group| group.inject(:&).first }
            .map {|item| priority_for(item) }
            .inject(:+)
 end
