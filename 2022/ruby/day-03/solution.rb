@@ -2,6 +2,11 @@
 require 'set'
 
 def main
+  part_one
+  part_two
+end
+
+def part_one
   # read each rucksack
   # split each into two compartments
   # find the item in both comparments
@@ -14,6 +19,18 @@ def main
            .map {|contents| contents.each_slice(contents.size / 2).to_a }
            .map {|first, second| [Set.new(first), Set.new(second)] }
            .map {|first, second| first.intersection(second).to_a.first }
+           .map {|item| priority_for(item) }
+           .inject(:+)
+end
+
+def part_two
+  puts File.read('input')
+           .split("\n")
+           .map {|line| line.split('') }
+           .each_slice(3)
+           .to_a
+           .map {|group| group.map {|rucksack| Set.new(rucksack) } }
+           .map {|group| group[0].intersection(group[1]).intersection(group[2]).to_a.first }
            .map {|item| priority_for(item) }
            .inject(:+)
 end
