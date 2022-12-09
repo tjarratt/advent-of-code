@@ -3,14 +3,10 @@
 require 'set'
 
 def part_one
-    motions = File.read('input')
-                  .split("\n")
-                  .map { parse(_1.split(' ')) }
-
-    rope = Rope.new
-    motions.each do |dir, how_much|
-        rope.move(dir, how_much)
-    end
+    rope = File.read('input')
+               .split("\n")
+               .map { parse(_1.split(' ')) }
+               .reduce(Rope.new) { |rope, motion| rope.move(*motion) }
 
     puts rope.locations_visited.size
 end
@@ -33,6 +29,8 @@ class Rope
             move_head(where)
             move_tail(@head)
         end
+
+        self
     end
 
     def locations_visited
