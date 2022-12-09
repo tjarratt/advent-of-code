@@ -11,23 +11,37 @@ def part_one
     puts rope.locations_visited.size
 end
 
+def part_two
+    rope = File.read('input')
+               .split("\n")
+               .map { parse(_1.split(' ')) }
+               .reduce(Rope.new(10)) { |rope, motion| rope.move(*motion) }
+
+    puts rope.locations_visited.size
+end
+
 def parse(pieces)
     [pieces.first.to_sym, pieces.last.to_i]
 end
 
 class Rope
-    def initialize
-        @head = [0,0]
-        @tail = [0,0]
+    def initialize(knots = 2)
+        @head = [0, 0]
+        @knots = knots.times.map { [0, 0] }
 
         @history = Set.new
-        @history << @tail
+        @history << @knots.last
     end
 
-    def move(where, how_much)
+    def move(direction, how_much)
         how_much.times do
-            move_head(where)
-            move_tail(@head)
+            move_head(@knots.first, direction)
+
+            1.upto(@knots.size - 1).each do |index|
+                @knots[index] = move_knot(@knots[index], @knots[index - 1])
+            end
+
+            @history << @knots.last
         end
 
         self
@@ -38,40 +52,40 @@ class Rope
     end
 
     private
-    def move_head(where)
+    def move_head(head, where)
         case where
         when :L
-            @head = [@head.first - 1, @head.last]
+            head = [head.first - 1, head.last]
         when :R
-            @head = [@head.first + 1, @head.last]
+            head = [head.first + 1, head.last]
         when :U
-            @head = [@head.first, @head.last + 1]
+            head = [head.first, head.last + 1]
         when :D
-            @head = [@head.first, @head.last - 1]
+            head = [head.first, head.last - 1]
         end
+
+        @knots[0] = head
     end
 
-    def move_tail(head)
-        return if close_enough(@tail, head)
+    def move_knot(knot, head)
+        return knot if close_enough(knot, head)
 
-        if @tail.first != head.first && @tail.last != head.last
+        if knot.first != head.first && knot.last != head.last
             # move diagonal
             diff = [
-                unit_vector(head.first - @tail.first),
-                unit_vector(head.last - @tail.last),
+                unit_vector(head.first - knot.first),
+                unit_vector(head.last - knot.last),
             ]
-            @tail = [@tail.first + diff.first, @tail.last + diff.last]
-        elsif @tail.first == head.first
+            return [knot.first + diff.first, knot.last + diff.last]
+        elsif knot.first == head.first
             # move up down
-            @tail = [@tail.first, @tail.last + unit_vector(head.last - @tail.last)]
-        elsif @tail.last == head.last
+            return [knot.first, knot.last + unit_vector(head.last - knot.last)]
+        elsif knot.last == head.last
             # move left right
-            @tail = [@tail.first + unit_vector(head.first - @tail.first), @tail.last]
+            return [knot.first + unit_vector(head.first - knot.first), knot.last]
         else
             throw 'IMPOSSIBLE'
         end
-        
-        @history << @tail
     end
 
     def close_enough(tail, head)
@@ -86,3 +100,5 @@ class Rope
 end
 
 part_one
+part_two
+
