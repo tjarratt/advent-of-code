@@ -2,3 +2,6 @@
 .DS_Store
 .swp
 **/*.swp
+
+# do not store solutions -- Eric has asked nicely
+**/input
