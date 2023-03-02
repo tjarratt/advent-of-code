@@ -1,11 +1,18 @@
 #!/usr/bin/env ruby
 
-# 506 is too high to be the answer
-# 300 is too low to be the answer
 def main
-    start, graph = parse_into_graph(File.read('input'))
-    result = traverse(start, graph)
-    puts result
+    part_one
+    part_two
+end
+
+def part_one
+    start, graph = parse_into_graph(File.read('input'), 'S')
+    puts traverse(start, graph)
+end
+
+def part_two
+    start, graph = parse_into_graph(File.read('input'), 'E')
+    puts traverse_in_reverse(start, graph)
 end
 
 def traverse(start, graph)
@@ -20,7 +27,29 @@ def traverse(start, graph)
 
                 neighbor.set_weight(current.weight + 1)
 
-                return neighbor.weight if neighbor.destination?
+                return neighbor.weight if neighbor.value == 'E'
+            end
+        end
+
+        nodes = next_set
+    end
+
+    raise Exception.new('Could not find solution')
+end
+
+def traverse_in_reverse(start, graph)
+    nodes = [start]
+
+    until nodes.empty? do
+        next_set = []
+
+        nodes.each do |current|
+            graph.reverse_neighbors_of(current).each do |neighbor|
+                next_set << neighbor if neighbor.unvisited?
+
+                neighbor.set_weight(current.weight + 1)
+
+                return neighbor.weight if neighbor.value == 'a'
             end
         end
 
@@ -45,10 +74,6 @@ class Node
         return unless new_weight < @weight
 
         @weight = new_weight
-    end
-
-    def destination?
-        @value == 'E'
     end
 
     def unvisited?
@@ -77,9 +102,26 @@ class Graph
 
         result
     end
+
+    def reverse_neighbors_of(current)
+        result = []
+
+        x, y = current.coords
+
+        # add cartesian neighbors (where they exist)
+        result << @rows[y][x - 1] unless x.zero?
+        result << @rows[y][x + 1] unless x == @rows.first.size - 1
+        result << @rows[y - 1][x] unless y.zero?
+        result << @rows[y + 1][x] unless y == @rows.size - 1
+
+        # keep only those who are at most one step higher
+        result.keep_if { current.elevation <= _1.elevation + 1 }
+
+        result
+    end
 end
 
-def parse_into_graph(raw)
+def parse_into_graph(raw, beginning)
     start = nil
     rows = raw.split("\n")
               .map { _1.split('') }
@@ -88,7 +130,7 @@ def parse_into_graph(raw)
         row.each_with_index.map do |char, x|
             elevation = elevation_for(char)
             node = Node.new(char, elevation, [x, y])
-            start = node if char == 'S'
+            start = node if char == beginning
             node
         end
     end
