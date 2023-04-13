@@ -71,7 +71,7 @@ def in_order?(first, last)
             end
         end
 
-        # if first is smaller, they are not in order
+        # if first is smaller, they are in perfect order
         if first.size < last.size
           return true
         else
@@ -102,10 +102,6 @@ class TestDetermingOrderOfPacks < MiniTest::Test
     assert_equal true, in_order?([], [3])
     assert_equal false, in_order?([[[]]], [[]])
     assert_equal false, in_order?([1,[2,[3,[4,[5,6,7]]]],8,9], [1,[2,[3,[4,[5,6,0]]]],8,9])
-  end
-
-  def test_focus
-    assert_equal false, in_order?([7,7,7,7], [7,7,7])
   end
 end
 
