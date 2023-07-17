@@ -10,6 +10,19 @@ defmodule Day01 do
     |> Enum.max
   end
 
+  def part_two do
+    "input"
+    |> read_file()
+    |> fn contents -> String.split(contents, "\n\n") end.()
+    |> ( Enum.map(fn x -> String.split(x, "\n") end) )
+    |> ( Enum.map(fn sublist -> Enum.reject(sublist, fn x -> x == "" end) end) )
+    |> ( Enum.map(fn sublist -> Enum.map(sublist, &String.to_integer/1) end) )
+    |> ( Enum.map &Enum.sum(&1) )
+    |> Enum.sort(&>=/2)
+    |> Enum.take(3)
+    |> Enum.sum
+  end
+
   def read_file(path) do
     case File.read(path) do
       {:ok, content}   -> content
@@ -21,4 +34,5 @@ defmodule Day01 do
 end
 
 IO.inspect Day01.part_one
+IO.inspect Day01.part_two
 
