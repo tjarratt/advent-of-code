@@ -33,6 +33,4 @@ defmodule Day01 do
   end
 end
 
-IO.inspect Day01.part_one
-IO.inspect Day01.part_two
 
