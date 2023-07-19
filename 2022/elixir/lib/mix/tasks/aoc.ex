@@ -2,8 +2,8 @@ defmodule Mix.Tasks.Aoc do
   use Mix.Task
 
   def run(["1"]) do
-    IO.puts Day01.part_one
-    IO.puts Day01.part_two
+    IO.puts(Day01.part_one())
+    IO.puts(Day01.part_two())
   end
 
   @shortdoc "Calculate solution(s) for Day 1"
