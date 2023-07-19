@@ -1,3 +1,6 @@
+# Ignore compiled BEAM files
+*.beam
+
 # The directory Mix will write compiled artifacts to.
 /_build/
 
