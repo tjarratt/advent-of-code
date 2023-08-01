@@ -8,7 +8,7 @@ defmodule Day02 do
     |> Enum.map(&parse/1)
     |> Enum.map(&outcome/1)
     |> Enum.map(fn [outcome, choice] -> score(outcome) + score(choice) end)
-    |> Enum.sum
+    |> Enum.sum()
   end
 
   def score(result) do
@@ -23,22 +23,21 @@ defmodule Day02 do
   end
 
   def outcome([opponent_choice, player_choice]) do
-    outcome = case [opponent_choice, player_choice] do
-      # draws
-      [:rock, :rock] -> :draw
-      [:paper, :paper] -> :draw
-      [:scissors, :scissors] -> :draw
-
+    outcome =
+      case [opponent_choice, player_choice] do
+        # draws
+        [:rock, :rock] -> :draw
+        [:paper, :paper] -> :draw
+        [:scissors, :scissors] -> :draw
         # losses
-      [:rock, :scissors] -> :loss
-      [:paper, :rock] -> :loss
-      [:scissors, :paper] -> :loss
-
+        [:rock, :scissors] -> :loss
+        [:paper, :rock] -> :loss
+        [:scissors, :paper] -> :loss
         # wins
-      [:rock, :paper] -> :win
-      [:paper, :scissors] -> :win
-      [:scissors, :rock] -> :win
-    end
+        [:rock, :paper] -> :win
+        [:paper, :scissors] -> :win
+        [:scissors, :rock] -> :win
+      end
 
     [outcome, player_choice]
   end
@@ -63,11 +62,11 @@ defmodule Day02 do
     :rock
   end
 
-  def parse("Y") do 
+  def parse("Y") do
     :paper
   end
 
-  def parse("Z") do 
+  def parse("Z") do
     :scissors
   end
 
