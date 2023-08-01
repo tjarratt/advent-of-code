@@ -24,7 +24,7 @@ defmodule Day01 do
   end
 
   def read_file(path) do
-    case File.read(path) do
+    case File.read(Path.join(["resources", "1", path])) do
       {:ok, content} ->
         content
 
