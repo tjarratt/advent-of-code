@@ -11,6 +11,18 @@ defmodule Day02 do
     |> Enum.sum()
   end
 
+  def part_two do
+    "input"
+    |> read_file()
+    |> String.split("\n")
+    |> Enum.reject(fn str -> String.length(str) == 0 end)
+    |> Enum.map(fn line -> String.split(line, " ") end)
+    |> Enum.map(&parse_part_2/1)
+    |> Enum.map(&outcome_part_2/1)
+    |> Enum.map(fn [outcome, choice] -> score(outcome) + score(choice) end)
+    |> Enum.sum()
+  end
+
   def score(result) do
     case result do
       :win -> 6
@@ -42,6 +54,27 @@ defmodule Day02 do
     [outcome, player_choice]
   end
 
+  def outcome_part_2([opponent_choice, strategy]) do
+    player_choice =
+      case [opponent_choice, strategy] do
+        [:rock, :win] -> :paper
+        [:paper, :win] -> :scissors
+        [:scissors, :win] -> :rock
+        [:rock, :draw] -> :rock
+        [:paper, :draw] -> :paper
+        [:scissors, :draw] -> :scissors
+        [:rock, :loss] -> :scissors
+        [:paper, :loss] -> :rock
+        [:scissors, :loss] -> :paper
+      end
+
+    [strategy, player_choice]
+  end
+
+  def parse_part_2([opponent, player]) do
+    [parse(opponent), parse_strategy(player)]
+  end
+
   def parse([opponent, player]) do
     [parse(opponent), parse(player)]
   end
@@ -70,6 +103,19 @@ defmodule Day02 do
     :scissors
   end
 
+  def parse_strategy("X") do
+    :loss
+  end
+
+  def parse_strategy("Y") do
+    :draw
+  end
+
+  def parse_strategy("Z") do
+    :win
+  end
+
+  # pragma mark - input
   def read_file(path) do
     case File.read(Path.join(["resources", "2", path])) do
       {:ok, content} ->
