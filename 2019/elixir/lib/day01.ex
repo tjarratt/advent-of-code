@@ -37,7 +37,7 @@ defmodule Day01 do
       {:ok, content} ->
         content
 
-      {error, reason} ->
+      {:error, _reason} ->
         IO.puts("Could not read file #{path}")
         nil
     end
