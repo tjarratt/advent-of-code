@@ -14,7 +14,28 @@ defmodule Day02 do
   end
 
   def part_two do
-    "<part two goes here>"
+    permutations()
+    |> Enum.find(fn pair -> simulate(pair) == 19690720 end)
+    |> (fn {noun, verb} -> 100 * noun + verb end).()
+  end
+
+  defp simulate({noun, verb}) do
+    "input"
+    |> read_input()
+    |> String.trim_trailing()
+    |> String.split(",")
+    |> Enum.map(&String.to_integer/1)
+    |> List.replace_at(1, noun)
+    |> List.replace_at(2, verb)
+    |> (fn program -> {0, program} end).()
+    |> calculate()
+    |> elem(1)
+    |> Enum.at(0)
+  end
+
+  defp permutations() do
+    range = 0..99
+    for x <- range, y <- range, do: {x, y}
   end
 
   defp read_input(filename) do
