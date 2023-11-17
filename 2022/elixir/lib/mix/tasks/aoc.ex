@@ -16,6 +16,7 @@ defmodule Mix.Tasks.Aoc do
 
   def run(["3"]) do
     IO.puts(Day03.part_one())
+    IO.puts(Day03.part_two())
   end
 
   def run([]) do

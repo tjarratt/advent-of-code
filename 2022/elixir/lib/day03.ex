@@ -14,6 +14,22 @@ defmodule Day03 do
     |> Enum.sum()
   end
 
+  def part_two do
+    "input"
+    |> read_file()
+    |> String.split("\n")
+    |> Enum.reject(fn elf -> String.length(elf) == 0 end)
+    |> Enum.map(fn rucksack -> String.split(rucksack, "", trim: true) |> MapSet.new() end)
+    |> Enum.chunk_every(3)
+    |> Enum.map(fn [one, two, three] ->
+      one |> MapSet.intersection(two) |> MapSet.intersection(three)
+    end)
+    |> Enum.map(&MapSet.to_list/1)
+    |> Enum.map(&hd/1)
+    |> Enum.map(&priority_for/1)
+    |> Enum.sum()
+  end
+
   def priority_for(item) do
     base = to_ordinal(item)
 
