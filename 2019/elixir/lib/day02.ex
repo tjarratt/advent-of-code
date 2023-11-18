@@ -15,7 +15,7 @@ defmodule Day02 do
 
   def part_two do
     permutations()
-    |> Enum.find(fn pair -> simulate(pair) == 19690720 end)
+    |> Enum.find(fn pair -> simulate(pair) == 19_690_720 end)
     |> (fn {noun, verb} -> 100 * noun + verb end).()
   end
 
