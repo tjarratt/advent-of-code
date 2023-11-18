@@ -11,6 +11,26 @@ defmodule Day03 do
     |> first_non_negative()
   end
 
+  def part_two() do
+    "input"
+    |> read_file()
+    |> String.split("\n", trim: true)
+    |> Enum.map(fn line -> String.split(line, ",") end)
+    |> Enum.map(&to_points/1)
+    |> (fn wires -> find_intersections_2(wires) end).()
+    |> first_non_negative()
+  end
+
+  defp find_intersections_2([first, second] = list) do
+    list
+    |> find_intersections
+    |> Enum.map(fn point -> index_of(first, point) + index_of(second, point) end)
+  end
+
+  defp index_of(list, point) do
+    1 + Enum.find_index(list, fn x -> x == point end)
+  end
+
   defp first_non_negative(list) do
     list |> Enum.sort() |> Enum.find(fn x -> x != 0 end)
   end
@@ -46,9 +66,10 @@ defmodule Day03 do
         {"D", amount} -> {x, y - amount}
       end
 
-    intermediate_points = walk(point, next)
+    [_ | intermediate_points] = walk(point, next)
 
-    [intermediate_points | to_points(rest, next)] |> List.flatten()
+    [intermediate_points | to_points(rest, next)]
+    |> List.flatten()
   end
 
   defp walk({x, y}, {x2, y}) do
