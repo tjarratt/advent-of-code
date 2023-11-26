@@ -1,15 +1,24 @@
 defmodule Intcode do
-  def calculate({ip, program}) do
+  def calculate(program) do
+    do_calculate({0, 0, program})
+  end
+
+  defp do_calculate({ip, output_written, program}) do
     instruction = Enum.at(program, ip)
 
-    {opcode, _parameter_modes} = parse(opcode: instruction)
+    {opcode, modes} = parse(opcode: instruction)
 
+    # TODO: another idea for how to do this
+    # when we start calculation we are told who to write to
+    # and then we always send there instead of send(self(), output)
+    # this is less dynamic, but sets us up for success later on
+    # when we need to connect intcode computers
     case opcode do
-      1 -> {ip + 4, add(ip, program)} |> calculate()
-      2 -> {ip + 4, multiply(ip, program)} |> calculate()
-      3 -> {ip + 2, read_input(ip, program)} |> calculate()
-      4 -> {ip + 2, write_output(ip, program)} |> calculate()
-      99 -> {ip, program}
+      1 -> {ip + 4, output_written, add(ip, program, modes)} |> do_calculate()
+      2 -> {ip + 4, output_written, multiply(ip, program, modes)} |> do_calculate()
+      3 -> {ip + 2, output_written, read_input(ip, program)} |> do_calculate()
+      4 -> {ip + 2, output_written + 1, write_output(ip, program)} |> do_calculate()
+      99 -> {ip, output_written, program}
       _ -> raise "unexpected opcode #{opcode}"
     end
   end
@@ -46,22 +55,43 @@ defmodule Intcode do
     program
   end
 
-  defp add(ip, program) do
-    a = Enum.at(program, ip + 1)
-    b = Enum.at(program, ip + 2)
-    addr = Enum.at(program, ip + 3)
+  defp mode_for_index(modes, index) do
+    mode = Enum.at(modes, index - 1)
 
-    sum = Enum.at(program, a) + Enum.at(program, b)
+    if mode == nil do
+      0
+    else
+      mode
+    end
+  end
+
+  defp read_parameter(index, ip, program, modes) do
+    case mode_for_index(modes, index) do
+      0 ->
+        addr = Enum.at(program, ip + index)
+        Enum.at(program, addr)
+
+      1 ->
+        Enum.at(program, ip + index)
+    end
+  end
+
+  defp add(ip, program, modes) do
+    a = read_parameter(1, ip, program, modes)
+    b = read_parameter(2, ip, program, modes)
+    sum = a + b
+
+    addr = Enum.at(program, ip + 3)
 
     List.replace_at(program, addr, sum)
   end
 
-  defp multiply(ip, program) do
-    a = Enum.at(program, ip + 1)
-    b = Enum.at(program, ip + 2)
-    addr = Enum.at(program, ip + 3)
+  defp multiply(ip, program, modes) do
+    a = read_parameter(1, ip, program, modes)
+    b = read_parameter(2, ip, program, modes)
+    product = a * b
 
-    product = Enum.at(program, a) * Enum.at(program, b)
+    addr = Enum.at(program, ip + 3)
 
     List.replace_at(program, addr, product)
   end

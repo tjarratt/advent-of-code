@@ -1,7 +1,9 @@
 defmodule IntCodeServer do
   # pragma mark - Public API
   def start_link() do
-    Task.start_link(__MODULE__, :loop, [%{buffer: [], results: nil}])
+    Task.start_link(__MODULE__, :loop, [
+      %{buffer: [], results: nil, output_read: 0, output_written: nil}
+    ])
   end
 
   def provide_input(pid, value) do
@@ -24,7 +26,15 @@ defmodule IntCodeServer do
     end
   end
 
-  def read_output(pid) do
+  def has_more_output?(pid) do
+    send(pid, {:has_more_output?, self()})
+
+    receive do
+      {:output_remaining?, value} -> value
+    end
+  end
+
+  def read_next_output(pid) do
     send(pid, {:read_output, self()})
 
     receive do
@@ -33,11 +43,11 @@ defmodule IntCodeServer do
   end
 
   # pragma mark - Private API
-  def loop(%{buffer: buffer, results: _results} = state) do
+  def loop(%{buffer: buffer, results: _, output_written: _, output_read: output_read} = state) do
     receive do
       {:execute, program} ->
-        {_, memory} = Intcode.calculate({0, program})
-        loop(%{state | results: memory})
+        {_, output_count, memory} = Intcode.calculate(program)
+        loop(%{state | results: memory, output_written: output_count})
 
       {:read_internal_memory, from} ->
         send(from, {:results, state.results})
@@ -50,11 +60,18 @@ defmodule IntCodeServer do
       {:read_output, from} when buffer != [] ->
         [top | new_buffer] = buffer
         send(from, {:output, top})
-        loop(%{state | buffer: new_buffer})
+        new_count = output_read + 1
+        loop(%{state | buffer: new_buffer, output_read: new_count})
 
       {:write_output, value} ->
         new_buffer = buffer ++ [value]
         loop(%{state | buffer: new_buffer})
+
+      {:has_more_output?, from} ->
+        result = state.output_read < state.output_written
+
+        send(from, {:output_remaining?, result})
+        loop(state)
     end
   end
 end

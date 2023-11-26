@@ -2,13 +2,13 @@ defmodule IntCodeTest do
   use ExUnit.Case, async: true
 
   test "intcode computer can perform addition" do
-    {_, result} = Intcode.calculate({0, [1, 0, 0, 0, 99]})
+    {_, _, result} = Intcode.calculate([1, 0, 0, 0, 99])
 
     assert result == [2, 0, 0, 0, 99]
   end
 
   test "intcode computer can perform multplication" do
-    {_, result} = Intcode.calculate({0, [2, 3, 0, 3, 99]})
+    {_, _, result} = Intcode.calculate([2, 3, 0, 3, 99])
 
     assert result == [2, 3, 0, 6, 99]
   end
@@ -36,9 +36,35 @@ defmodule IntCodeTest do
       output =
         pid
         |> IntCodeServer.execute(program)
-        |> IntCodeServer.read_output()
+        |> IntCodeServer.read_next_output()
 
       assert output == 666
+    end
+
+    test "arguments can be read in immediate mode" do
+      program = [1002, 4, 3, 4, 33]
+
+      {:ok, pid} = IntCodeServer.start_link()
+
+      internal_memory =
+        pid
+        |> IntCodeServer.execute(program)
+        |> IntCodeServer.read_internal_memory()
+
+      assert internal_memory == [1002, 4, 3, 4, 99]
+    end
+
+    test "handles negative numbers with aplomb" do
+      program = [1101, 100, -1, 4, 0]
+
+      {:ok, pid} = IntCodeServer.start_link()
+
+      internal_memory =
+        pid
+        |> IntCodeServer.execute(program)
+        |> IntCodeServer.read_internal_memory()
+
+      assert internal_memory == [1101, 100, -1, 4, 99]
     end
   end
 end
