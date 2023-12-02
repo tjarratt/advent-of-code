@@ -6,6 +6,10 @@ defmodule Mix.Tasks.Aoc do
     IO.puts(Day01.part_two())
   end
 
+  def run(["2"]) do
+    IO.puts(Day02.part_one())
+  end
+
   @shortdoc "Calculate solution(s) for a given day"
   @moduledoc """
   A custom mix task that runs the code to calculate solutions for Advent of Code 2022
