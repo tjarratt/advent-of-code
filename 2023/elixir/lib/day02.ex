@@ -24,19 +24,14 @@ defmodule Day02 do
   defp find_minimum_cubes(game) do
     Enum.reduce(game.rounds, %{}, fn round, acc ->
       acc
-      |> Map.put(
-        :red,
-        [round.red, Map.get(acc, :red)] |> Enum.reject(&is_nil/1) |> Enum.max()
-      )
-      |> Map.put(
-        :green,
-        [round.green, Map.get(acc, :green)] |> Enum.reject(&is_nil/1) |> Enum.max()
-      )
-      |> Map.put(
-        :blue,
-        [round.blue, Map.get(acc, :blue)] |> Enum.reject(&is_nil/1) |> Enum.max()
-      )
+      |> Map.put(:red, most_cubes(acc, round, :red))
+      |> Map.put(:green, most_cubes(acc, round, :green))
+      |> Map.put(:blue, most_cubes(acc, round, :blue))
     end)
+  end
+
+  defp most_cubes(map, round, color) do
+    [Map.get(map, color), Map.get(round, color)] |> Enum.reject(&is_nil/1) |> Enum.max()
   end
 
   defp calculate_power(cubes) do
