@@ -11,7 +11,36 @@ defmodule Day02 do
   end
 
   def part_two() do
-    "not yet"
+    "input"
+    |> read_file()
+    |> String.split("\n")
+    |> Enum.reject(fn line -> String.length(line) == 0 end)
+    |> Enum.map(&parse_games/1)
+    |> Enum.map(&find_minimum_cubes/1)
+    |> Enum.map(&calculate_power/1)
+    |> Enum.sum()
+  end
+
+  defp find_minimum_cubes(game) do
+    Enum.reduce(game.rounds, %{}, fn round, acc ->
+      acc
+      |> Map.put(
+        :red,
+        [round.red, Map.get(acc, :red)] |> Enum.reject(&is_nil/1) |> Enum.max()
+      )
+      |> Map.put(
+        :green,
+        [round.green, Map.get(acc, :green)] |> Enum.reject(&is_nil/1) |> Enum.max()
+      )
+      |> Map.put(
+        :blue,
+        [round.blue, Map.get(acc, :blue)] |> Enum.reject(&is_nil/1) |> Enum.max()
+      )
+    end)
+  end
+
+  defp calculate_power(cubes) do
+    cubes |> Map.values() |> Enum.product()
   end
 
   defp possible(game) do
