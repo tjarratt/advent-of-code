@@ -1,7 +1,9 @@
 defmodule Day02 do
+  use AocTemplate
+
   def part_one() do
     "input"
-    |> read_file()
+    |> read_file!()
     |> String.split("\n")
     |> Enum.reject(fn line -> String.length(line) == 0 end)
     |> Enum.map(&parse_games/1)
@@ -12,7 +14,7 @@ defmodule Day02 do
 
   def part_two() do
     "input"
-    |> read_file()
+    |> read_file!()
     |> String.split("\n")
     |> Enum.reject(fn line -> String.length(line) == 0 end)
     |> Enum.map(&parse_games/1)
@@ -62,9 +64,5 @@ defmodule Day02 do
         Map.put(acc, String.to_atom(color), String.to_integer(num))
       end)
     end)
-  end
-
-  defp read_file(name) do
-    File.read!(Path.join(["resources", "02", name]))
   end
 end

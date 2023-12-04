@@ -1,4 +1,6 @@
 defmodule Day01 do
+  use AocTemplate
+
   @words_to_numbers %{
     "one" => "1",
     "two" => "2",
@@ -13,7 +15,7 @@ defmodule Day01 do
 
   def part_one() do
     "input"
-    |> read_file()
+    |> read_file!()
     |> String.split("\n")
     |> Enum.reject(&(String.length(&1) == 0))
     |> Enum.map(&read_calibration_value/1)
@@ -22,7 +24,7 @@ defmodule Day01 do
 
   def part_two() do
     "input"
-    |> read_file()
+    |> read_file!()
     |> String.split("\n")
     |> Enum.reject(&(String.length(&1) == 0))
     |> Enum.map(&number_as_words_to_digits/1)
@@ -98,9 +100,5 @@ defmodule Day01 do
       |> Enum.filter(fn str -> str =~ ~r([0-9]) end)
 
     String.to_integer(List.first(digits) <> List.last(digits))
-  end
-
-  defp read_file(path) do
-    File.read!(Path.join(["resources", "01", path]))
   end
 end

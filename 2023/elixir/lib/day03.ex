@@ -1,15 +1,13 @@
 defmodule Day03 do
+  use AocTemplate
+
   @symbols ~w[ ! @ # $ % ^ & * ( ) _ + = - / ]
 
   def part_one() do
     matrix =
       "input"
       |> read_file!()
-      |> String.split("\n")
-      |> Enum.reject(fn line -> String.length(line) == 0 end)
-      |> Enum.map(&String.split(&1, "", trim: true))
-      |> Enum.with_index(&with_tuple/2)
-      |> Enum.map(fn {idx, row} -> {idx, Enum.with_index(row, &with_tuple/2)} end)
+      |> parse_matrix()
 
     matrix
     |> extract_symbols()
@@ -22,11 +20,7 @@ defmodule Day03 do
     matrix =
       "input"
       |> read_file!()
-      |> String.split("\n")
-      |> Enum.reject(fn line -> String.length(line) == 0 end)
-      |> Enum.map(&String.split(&1, "", trim: true))
-      |> Enum.with_index(&with_tuple/2)
-      |> Enum.map(fn {idx, row} -> {idx, Enum.with_index(row, &with_tuple/2)} end)
+      |> parse_matrix()
 
     matrix
     |> extract_symbols()
@@ -39,6 +33,18 @@ defmodule Day03 do
 
   defp is_gear?({_y, _x, "*"}), do: true
   defp is_gear?(_), do: false
+
+  defp extract_symbols(matrix) do
+    matrix
+    |> Enum.map(fn {y_idx, row} ->
+      {y_idx, Enum.filter(row, fn {_idx, char} -> char in @symbols end)}
+    end)
+    |> Enum.filter(fn {_idx, row} -> length(row) > 0 end)
+    |> Enum.map(fn {y_idx, row} -> Enum.map(row, fn {x_idx, ele} -> {y_idx, x_idx, ele} end) end)
+    |> List.flatten()
+  end
+
+  # pragma mark - matrix helpers
 
   defp find_nearby_numbers(symbol, matrix) do
     symbol
@@ -78,6 +84,15 @@ defmodule Day03 do
     end
   end
 
+  defp parse_matrix(file) do
+    file
+    |> String.split("\n")
+    |> Enum.reject(fn line -> String.length(line) == 0 end)
+    |> Enum.map(&String.split(&1, "", trim: true))
+    |> Enum.with_index(&with_tuple/2)
+    |> Enum.map(fn {idx, row} -> {idx, Enum.with_index(row, &with_tuple/2)} end)
+  end
+
   defp is_digit?(nil), do: false
 
   defp is_digit?(element) do
@@ -107,19 +122,5 @@ defmodule Day03 do
     ]
   end
 
-  defp extract_symbols(matrix) do
-    matrix
-    |> Enum.map(fn {y_idx, row} ->
-      {y_idx, Enum.filter(row, fn {_idx, char} -> char in @symbols end)}
-    end)
-    |> Enum.filter(fn {_idx, row} -> length(row) > 0 end)
-    |> Enum.map(fn {y_idx, row} -> Enum.map(row, fn {x_idx, ele} -> {y_idx, x_idx, ele} end) end)
-    |> List.flatten()
-  end
-
   defp with_tuple(element, index), do: {index, element}
-
-  defp read_file!(name) do
-    File.read!(Path.join(["resources", "03", name]))
-  end
 end
