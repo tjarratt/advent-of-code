@@ -28,8 +28,8 @@ defmodule Day05 do
   end
 
   defp check_ranges(input, ranges) do
-    IO.puts("searching for #{input}")
-    range = Enum.find(ranges, fn range -> map_source_to_destination(input, range) end)
+    range =
+      Enum.find(ranges, fn {source, _destination} -> input in source end)
 
     if range == nil do
       input
@@ -39,14 +39,9 @@ defmodule Day05 do
   end
 
   defp map_source_to_destination(input, {source, destination}) do
-    IO.puts("checking index for #{input}")
-    index = Enum.find_index(source, fn x -> x == input end)
-    IO.puts("found index: #{index}")
-
-    case index do
-      nil -> nil
-      _ -> Enum.at(destination, index)
-    end
+    source_start.._end = source
+    destination_start.._end = destination
+    destination_start + (input - source_start)
   end
 
   defp parse_seeds(raw) do
