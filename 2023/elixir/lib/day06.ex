@@ -16,6 +16,15 @@ defmodule Day06 do
     |> Enum.product()
   end
 
+  def part_two() do
+    "input"
+    |> read_file!()
+    |> String.split("\n", trim: true)
+    |> Enum.reject(fn line -> String.length(line) == 0 end)
+    |> parse_race_part2()
+    |> count_ways_to_win()
+  end
+
   defp count_ways_to_win({time, distance}) do
     1..time
     |> Enum.map(fn t -> {time - t, t} end)
@@ -32,5 +41,16 @@ defmodule Day06 do
       Enum.map(times, &String.to_integer/1),
       Enum.map(distances, &String.to_integer/1)
     )
+  end
+
+  defp parse_race_part2(lines) do
+    [first, second] = lines
+    [_label | times] = String.split(first, " ", trim: true)
+    [_label | distances] = String.split(second, " ", trim: true)
+
+    time = Enum.join(times, "") |> String.to_integer()
+    distance = Enum.join(distances, "") |> String.to_integer()
+
+    {time, distance}
   end
 end
