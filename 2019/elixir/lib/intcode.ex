@@ -18,6 +18,8 @@ defmodule Intcode do
       2 -> {ip + 4, output_written, multiply(ip, program, modes)} |> do_calculate()
       3 -> {ip + 2, output_written, read_input(ip, program)} |> do_calculate()
       4 -> {ip + 2, output_written + 1, write_output(ip, program)} |> do_calculate()
+      7 -> {ip + 4, output_written, check_less_than(ip, program, modes)} |> do_calculate()
+      8 -> {ip + 4, output_written, check_equality(ip, program, modes)} |> do_calculate()
       99 -> {ip, output_written, program}
       _ -> raise "unexpected opcode #{opcode}"
     end
