@@ -27,6 +27,9 @@ defmodule Intcode do
       4 ->
         write_output(state) |> do_calculate()
 
+      6 ->
+        jump_if_false(state, modes) |> do_calculate()
+
       7 ->
         check_less_than(state, modes) |> do_calculate()
 
@@ -112,6 +115,20 @@ defmodule Intcode do
     addr = Enum.at(program, ip + 3)
 
     {ip + 4, output_written, List.replace_at(program, addr, result)}
+  end
+
+  defp jump_if_false({ip, output_written, program}, modes) do
+    a = read_parameter(1, ip, program, modes)
+    addr = read_parameter(2, ip, program, modes)
+
+    new_pointer =
+      if a == 0 do
+        addr
+      else
+        ip + 2
+      end
+
+    {new_pointer, output_written, program}
   end
 
   # pragma mark - functions to read next instruction information

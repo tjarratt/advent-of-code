@@ -112,5 +112,19 @@ defmodule IntCodeTest do
 
       assert falsy == 0
     end
+
+    test "take an input, jumps, outputs 0 if the input is zero (position mode)" do
+      program = [3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9]
+
+      {:ok, pid} = IntCodeServer.start_link()
+
+      zero =
+        pid
+        |> IntCodeServer.provide_input(0)
+        |> IntCodeServer.execute(program)
+        |> IntCodeServer.read_next_output()
+
+      assert zero == 0
+    end
   end
 end
