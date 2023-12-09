@@ -11,6 +11,25 @@ defmodule Day09 do
     |> Enum.sum()
   end
 
+  def part_two() do
+    "input"
+    |> read_file!()
+    |> split_lines()
+    |> Enum.map(&parse/1)
+    |> Enum.map(&predict_previous_value/1)
+    |> Enum.sum()
+  end
+
+  defp predict_previous_value(sequence) do
+    differences = compute_differences(sequence)
+
+    if Enum.uniq(differences) == [0] do
+      List.first(sequence)
+    else
+      List.first(sequence) - predict_previous_value(differences)
+    end
+  end
+
   defp predict_next_value(sequence) do
     differences = compute_differences(sequence)
 
