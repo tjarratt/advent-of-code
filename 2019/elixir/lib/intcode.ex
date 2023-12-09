@@ -8,7 +8,7 @@ defmodule Intcode do
 
     {opcode, modes} = parse(opcode: instruction)
 
-    # TODO: another idea for how to do this
+    # another idea for how to handle writing output
     # when we start calculation we are told who to write to
     # and then we always send there instead of send(self(), output)
     # this is less dynamic, but sets us up for success later on
@@ -96,5 +96,37 @@ defmodule Intcode do
     addr = Enum.at(program, ip + 3)
 
     List.replace_at(program, addr, product)
+  end
+
+  defp check_equality(ip, program, modes) do
+    a = read_parameter(1, ip, program, modes)
+    b = read_parameter(2, ip, program, modes)
+
+    result =
+      if a == b do
+        1
+      else
+        0
+      end
+
+    addr = Enum.at(program, ip + 3)
+
+    List.replace_at(program, addr, result)
+  end
+
+  defp check_less_than(ip, program, modes) do
+    a = read_parameter(1, ip, program, modes)
+    b = read_parameter(2, ip, program, modes)
+
+    result =
+      if a < b do
+        1
+      else
+        0
+      end
+
+    addr = Enum.at(program, ip + 3)
+
+    List.replace_at(program, addr, result)
   end
 end

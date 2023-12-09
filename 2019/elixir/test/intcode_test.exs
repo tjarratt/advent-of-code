@@ -1,16 +1,18 @@
 defmodule IntCodeTest do
   use ExUnit.Case, async: true
 
-  test "intcode computer can perform addition" do
-    {_, _, result} = Intcode.calculate([1, 0, 0, 0, 99])
+  describe "intcode computer" do
+    test "can perform addition" do
+      {_, _, result} = Intcode.calculate([1, 0, 0, 0, 99])
 
-    assert result == [2, 0, 0, 0, 99]
-  end
+      assert result == [2, 0, 0, 0, 99]
+    end
 
-  test "intcode computer can perform multplication" do
-    {_, _, result} = Intcode.calculate([2, 3, 0, 3, 99])
+    test "can perform multplication" do
+      {_, _, result} = Intcode.calculate([2, 3, 0, 3, 99])
 
-    assert result == [2, 3, 0, 6, 99]
+      assert result == [2, 3, 0, 6, 99]
+    end
   end
 
   describe "running an intcode server" do
@@ -65,6 +67,50 @@ defmodule IntCodeTest do
         |> IntCodeServer.read_internal_memory()
 
       assert internal_memory == [1101, 100, -1, 4, 99]
+    end
+
+    test "checks equality of input using position mode" do
+      program = [3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]
+
+      {:ok, pid} = IntCodeServer.start_link()
+
+      truthy =
+        pid
+        |> IntCodeServer.provide_input(8)
+        |> IntCodeServer.execute(program)
+        |> IntCodeServer.read_next_output()
+
+      assert truthy == 1
+
+      falsy =
+        pid
+        |> IntCodeServer.provide_input(7)
+        |> IntCodeServer.execute(program)
+        |> IntCodeServer.read_next_output()
+
+      assert falsy == 0
+    end
+
+    test "checks whether a given number is less than another" do
+      program = [3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8]
+
+      {:ok, pid} = IntCodeServer.start_link()
+
+      truthy =
+        pid
+        |> IntCodeServer.provide_input(7)
+        |> IntCodeServer.execute(program)
+        |> IntCodeServer.read_next_output()
+
+      assert truthy == 1
+
+      falsy =
+        pid
+        |> IntCodeServer.provide_input(9)
+        |> IntCodeServer.execute(program)
+        |> IntCodeServer.read_next_output()
+
+      assert falsy == 0
     end
   end
 end
