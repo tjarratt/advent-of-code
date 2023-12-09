@@ -4,8 +4,7 @@ defmodule Day05 do
   def part_one() do
     "input"
     |> read_file!()
-    |> String.split("\n\n")
-    |> Enum.reject(fn line -> String.length(line) == 0 end)
+    |> split_lines(on: "\n\n")
     |> (fn [head | rest] -> {parse_seeds(head), parse_maps(rest)} end).()
     |> (fn {seeds, maps} -> Enum.map(seeds, &map_seed_to_location(&1, maps)) end).()
     |> Enum.map(&Enum.at(&1, 1))
@@ -16,8 +15,7 @@ defmodule Day05 do
   def part_two() do
     "input"
     |> read_file!()
-    |> String.split("\n\n")
-    |> Enum.reject(fn line -> String.length(line) == 0 end)
+    |> split_lines(on: "\n\n")
     |> (fn [head | rest] -> {parse_seeds_part2(head), parse_maps_part2(rest)} end).()
     |> (fn {seed_ranges, maps} -> find_lowest_location_in_seed_ranges(seed_ranges, maps, 0) end).()
   end

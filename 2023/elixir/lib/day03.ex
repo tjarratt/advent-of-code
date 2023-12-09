@@ -86,8 +86,7 @@ defmodule Day03 do
 
   defp parse_matrix(file) do
     file
-    |> String.split("\n")
-    |> Enum.reject(fn line -> String.length(line) == 0 end)
+    |> split_lines()
     |> Enum.map(&String.split(&1, "", trim: true))
     |> Enum.with_index(&with_tuple/2)
     |> Enum.map(fn {idx, row} -> {idx, Enum.with_index(row, &with_tuple/2)} end)

@@ -9,8 +9,7 @@ defmodule Day06 do
 
     "input"
     |> read_file!()
-    |> String.split("\n", trim: true)
-    |> Enum.reject(fn line -> String.length(line) == 0 end)
+    |> split_lines()
     |> parse_races()
     |> Enum.map(&count_ways_to_win/1)
     |> Enum.product()
@@ -19,8 +18,7 @@ defmodule Day06 do
   def part_two() do
     "input"
     |> read_file!()
-    |> String.split("\n", trim: true)
-    |> Enum.reject(fn line -> String.length(line) == 0 end)
+    |> split_lines()
     |> parse_race_part2()
     |> count_ways_to_win()
   end

@@ -4,8 +4,7 @@ defmodule Day04 do
   def part_one() do
     "input"
     |> read_file!()
-    |> String.split("\n")
-    |> Enum.reject(fn line -> String.length(line) == 0 end)
+    |> split_lines()
     |> Enum.map(&parse_gamecard/1)
     |> Enum.map(&count_winning_numbers/1)
     |> Enum.map(&points_for/1)
@@ -15,8 +14,7 @@ defmodule Day04 do
   def part_two() do
     "input"
     |> read_file!()
-    |> String.split("\n")
-    |> Enum.reject(fn line -> String.length(line) == 0 end)
+    |> split_lines()
     |> Enum.map(&parse_gamecard/1)
     |> Enum.map(fn card -> {card, 1} end)
     |> sum_up_scorecards(0)

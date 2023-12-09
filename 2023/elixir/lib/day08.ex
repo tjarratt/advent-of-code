@@ -5,8 +5,7 @@ defmodule Day08 do
   def part_one() do
     "input"
     |> read_file!()
-    |> String.split("\n\n")
-    |> Enum.reject(fn line -> String.length(line) == 0 end)
+    |> split_lines(on: "\n\n")
     |> (fn [instructions, map] ->
           {
             String.split(instructions, "", trim: true),
@@ -19,8 +18,7 @@ defmodule Day08 do
   def part_two() do
     "input"
     |> read_file!()
-    |> String.split("\n\n")
-    |> Enum.reject(fn line -> String.length(line) == 0 end)
+    |> split_lines(on: "\n\n")
     |> (fn [instructions, map] ->
           {
             String.split(instructions, "", trim: true),

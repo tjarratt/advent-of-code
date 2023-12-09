@@ -4,8 +4,7 @@ defmodule Day02 do
   def part_one() do
     "input"
     |> read_file!()
-    |> String.split("\n")
-    |> Enum.reject(fn line -> String.length(line) == 0 end)
+    |> split_lines()
     |> Enum.map(&parse_games/1)
     |> Enum.filter(&possible/1)
     |> Enum.map(fn game -> game.number end)
@@ -15,8 +14,7 @@ defmodule Day02 do
   def part_two() do
     "input"
     |> read_file!()
-    |> String.split("\n")
-    |> Enum.reject(fn line -> String.length(line) == 0 end)
+    |> split_lines()
     |> Enum.map(&parse_games/1)
     |> Enum.map(&find_minimum_cubes/1)
     |> Enum.map(&calculate_power/1)

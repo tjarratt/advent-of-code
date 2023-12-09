@@ -4,8 +4,7 @@ defmodule Day09 do
   def part_one() do
     "input"
     |> read_file!()
-    |> String.split("\n")
-    |> Enum.reject(fn line -> String.length(line) == 0 end)
+    |> split_lines()
     |> Enum.map(&parse/1)
     |> Enum.map(&predict_next_value/1)
     |> Enum.sum()

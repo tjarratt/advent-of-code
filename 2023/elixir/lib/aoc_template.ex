@@ -7,9 +7,11 @@ defmodule AocTemplate do
         File.read!(Path.join(["resources", day, name]))
       end
 
-      def split_lines(content) do
+      def split_lines(content, opts \\ []) do
+        delimiter = Keyword.get(opts, :on, "\n")
+
         content
-        |> String.split("\n")
+        |> String.split(delimiter)
         |> Enum.reject(fn line -> String.length(line) == 0 end)
       end
     end

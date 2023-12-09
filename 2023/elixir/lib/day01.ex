@@ -16,8 +16,7 @@ defmodule Day01 do
   def part_one() do
     "input"
     |> read_file!()
-    |> String.split("\n")
-    |> Enum.reject(&(String.length(&1) == 0))
+    |> split_lines()
     |> Enum.map(&read_calibration_value/1)
     |> Enum.sum()
   end
@@ -25,8 +24,7 @@ defmodule Day01 do
   def part_two() do
     "input"
     |> read_file!()
-    |> String.split("\n")
-    |> Enum.reject(&(String.length(&1) == 0))
+    |> split_lines()
     |> Enum.map(&number_as_words_to_digits/1)
     |> Enum.map(&number_as_words_to_digits_backwards/1)
     |> Enum.map(&read_calibration_value/1)
