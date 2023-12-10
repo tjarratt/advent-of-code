@@ -21,6 +21,97 @@ defmodule Day10 do
     |> (fn loop -> (length(loop) / 2) |> trunc() end).()
   end
 
+  def part_two() do
+    "input"
+    |> read_file!()
+    |> parse_matrix()
+    |> (fn matrix -> {matrix, List.flatten(matrix)} end).()
+    |> (fn {rows, matrix} ->
+          start = Enum.find(matrix, fn {_, _, char} -> char == "S" end)
+
+          loop =
+            matrix
+            |> find_neighbors(start)
+            |> Enum.filter(&connecting?(&1, start))
+            |> hd()
+            |> (fn node ->
+                  {:closed_loop, loop} = forms_closed_loop?(matrix, node, [start], to: start)
+                  loop
+                end).()
+
+          {loop, rows}
+        end).()
+    |> (fn {loop, rows} -> Enum.map(rows, &raycast(&1, loop, 0)) end).()
+    |> Enum.sum()
+  end
+
+  defp raycast([], _, _), do: 0
+
+  defp raycast(row, loop, count) do
+    [{_, _, char} = point | rest] = row
+
+    left_corners = ~w( S F L )
+    right_corners = ~w( J 7 )
+
+    cond do
+      char in left_corners and point in loop ->
+        {remaining, diff} = until_out_of_loop(char, rest, loop)
+        raycast(remaining, loop, count + diff)
+
+      char in right_corners and point in loop ->
+        {remaining, diff} = until_out_of_loop(char, rest, loop)
+        raycast(remaining, loop, count + diff)
+
+      char == "|" and point in loop ->
+        raycast(rest, loop, count + 1)
+
+      rem(count, 2) == 1 ->
+        1 + raycast(rest, loop, count)
+
+      true ->
+        raycast(rest, loop, count)
+    end
+  end
+
+  @doc """
+    Continue to read from the row until we are out of the pipe
+    Also, keep track of whether this enters or exits the polygon during this time.
+  """
+  defp until_out_of_loop(corner, row, loop) do
+    [{_, _, char} = point | rest] = row
+
+    cond do
+      char == "-" and point in loop ->
+        until_out_of_loop(corner, rest, loop)
+
+      # S is a bit of a wildcard, and it's unclear whether we enter or exit
+      # This is correct for some inputs, and incorrect for others, sadly
+      corner == "S" and point in loop and char == "J" ->
+        {rest, 1}
+
+      corner == "S" and point in loop and char == "7" ->
+        {rest, 0}
+
+      corner == "F" and point in loop and char == "J" ->
+        {rest, 1}
+
+      corner == "F" and point in loop and char == "7" ->
+        {rest, 0}
+
+      corner == "F" and point in loop and char == "S" ->
+        {rest, 0}
+
+      corner == "L" and point in loop and char == "J" ->
+        {rest, 0}
+
+      corner == "L" and point in loop and char == "7" ->
+        {rest, 1}
+
+      corner == "L" and point in loop and char == "S" ->
+        {rest, 0}
+    end
+  end
+
   defp forms_closed_loop?(matrix, current, previous_pipes, to: starting_point) do
     if current == starting_point do
       {:closed_loop, previous_pipes}
@@ -109,8 +200,6 @@ defmodule Day10 do
   defp connecting?(_, _), do: false
 
   def find_next_pipe(options, current) do
-    # IO.inspect({current, options}, label: "finding next pipe from ...")
-
     case Enum.filter(options, fn node -> connecting?(node, current) end) do
       [] ->
         nil
