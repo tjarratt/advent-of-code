@@ -73,10 +73,8 @@ defmodule Day10 do
     end
   end
 
-  @doc """
-    Continue to read from the row until we are out of the pipe
-    Also, keep track of whether this enters or exits the polygon during this time.
-  """
+  # Continue to read from the row until we are out of the pipe
+  # Also, keep track of whether this enters or exits the polygon during this time.
   defp until_out_of_loop(corner, row, loop) do
     [{_, _, char} = point | rest] = row
 
