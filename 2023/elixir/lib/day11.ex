@@ -6,23 +6,90 @@ defmodule Day11 do
     |> read_file!()
     |> parse_matrix()
     |> expand_empty_space_between_galaxies()
-    |> Enum.with_index(&with_tuple/2)
-    |> Enum.map(fn {y_index, row} ->
-      Enum.with_index(row, fn ele, x_index -> {y_index, x_index, ele} end)
-    end)
+    |> map_to_tuple()
     |> Enum.map(fn row -> Enum.filter(row, fn {_, _, char} -> char == "#" end) end)
     |> List.flatten()
-    |> (fn galaxies ->
-          for a <- galaxies, b <- galaxies, a != b, do: [a, b]
-        end).()
-    |> Enum.map(fn [a, b] -> manhattan_distance(a, b) end)
+    |> (fn galaxies -> for a <- galaxies, b <- galaxies, do: [a, b] end).()
+    |> Enum.map(&manhattan_distance/1)
     |> Enum.sum()
     # the pairs are double counted, so divide by two
     |> Integer.floor_div(2)
   end
 
-  defp manhattan_distance({y1, x1, _}, {y2, x2, _}) do
+  def part_two() do
+    "input"
+    |> read_file!()
+    |> parse_matrix()
+    |> Enum.with_index(&with_tuple/2)
+    |> Enum.map(fn {y_index, row} ->
+      Enum.with_index(row, fn ele, x_index -> {y_index, x_index, ele} end)
+    end)
+    |> expand_part2()
+    |> (fn {matrix, y_indices, x_indices} ->
+          galaxies =
+            matrix
+            |> Enum.map(fn row -> Enum.filter(row, fn {_, _, char} -> char == "#" end) end)
+            |> List.flatten()
+
+          pairs = for a <- galaxies, b <- galaxies, do: [a, b]
+
+          Enum.map(pairs, fn [a, b] ->
+            manhattan_distance_part2(a, b, y_indices, x_indices, factor: 1_000_000)
+          end)
+        end).()
+    |> Enum.sum()
+    |> Integer.floor_div(2)
+  end
+
+  defp manhattan_distance_part2(
+         {y1, x1, _} = point_a,
+         {y2, x2, _} = point_b,
+         y_indices,
+         x_indices,
+         factor: factor
+       ) do
+    y_expansion =
+      y_indices
+      |> Enum.filter(fn y -> (y1 < y and y < y2) or (y1 > y and y > y2) end)
+      |> length()
+      # factor -1 because these would be double counted in the manhattan distance calculation
+      |> (fn length -> length * (factor - 1) end).()
+
+    x_expansion =
+      x_indices
+      |> Enum.filter(fn x -> (x1 < x and x < x2) or (x1 > x and x > x2) end)
+      |> length()
+      # factor -1 because these would be double counted in the manhattan distance calculation
+      |> (fn length -> length * (factor - 1) end).()
+
+    manhattan_distance([point_a, point_b]) + y_expansion + x_expansion
+  end
+
+  defp manhattan_distance([{y1, x1, _}, {y2, x2, _}]) do
     abs(y1 - y2) + abs(x1 - x2)
+  end
+
+  defp expand_part2(matrix) do
+    height = length(matrix)
+    width = length(hd(matrix))
+
+    y_indices =
+      0..(height - 1)
+      |> Enum.filter(fn y_index ->
+        row = row_at(matrix, y_index) |> Enum.map(&elem(&1, 2))
+
+        "#" not in row
+      end)
+
+    x_indices =
+      0..(width - 1)
+      |> Enum.filter(fn x_index ->
+        column = column_at(matrix, x_index) |> Enum.map(&elem(&1, 2))
+
+        "#" not in column
+      end)
+
+    {matrix, y_indices, x_indices}
   end
 
   # pragma mark - expanding universe
@@ -90,4 +157,12 @@ defmodule Day11 do
   end
 
   defp with_tuple(element, index), do: {index, element}
+
+  defp map_to_tuple(matrix) do
+    matrix
+    |> Enum.with_index(&with_tuple/2)
+    |> Enum.map(fn {y_index, row} ->
+      Enum.with_index(row, fn ele, x_index -> {y_index, x_index, ele} end)
+    end)
+  end
 end
