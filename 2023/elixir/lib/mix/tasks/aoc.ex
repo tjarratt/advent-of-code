@@ -58,6 +58,7 @@ defmodule Mix.Tasks.Aoc do
 
   def run(["15"]) do
     IO.puts(Day15.part_one())
+    IO.puts(Day15.part_two())
   end
 
   @shortdoc "Calculate solution(s) for a given day"
