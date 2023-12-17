@@ -10,12 +10,12 @@ defmodule Day17 do
     fScore = Map.new() |> Map.put(start, 1)
 
     matrix =
-      "test-input-2"
+      "input"
       |> read_file!()
       |> parse_matrix()
 
     matrix
-    |> a_star([], came_from, gScore, fScore, [start])
+    |> a_star(Map.new(), came_from, gScore, fScore, [start])
     |> Enum.reverse()
     |> Enum.chunk_every(2, 1, :discard)
     |> Enum.map(fn [from, to] -> heat_lost_between(matrix, from, to) end)
@@ -74,7 +74,7 @@ defmodule Day17 do
 
       a_star(
         matrix,
-        visited ++ [current_position],
+        Map.put(visited, current_position, true),
         came_from_prime,
         gScore_prime,
         fScore_prime,
@@ -126,7 +126,7 @@ defmodule Day17 do
     |> List.flatten()
     |> Enum.reject(&outside_city_limits?(matrix, &1))
     |> Enum.reject(fn {_y, _x, dir} -> dir == previous_direction end)
-    |> Enum.reject(fn choice -> choice in previously_visited end)
+    |> Enum.reject(fn choice -> Map.has_key?(previously_visited, choice) end)
     |> Enum.reject(&opposite_direction?(&1, previous_direction))
   end
 
