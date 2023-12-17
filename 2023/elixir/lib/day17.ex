@@ -22,7 +22,26 @@ defmodule Day17 do
     |> Enum.sum()
   end
 
-  defp a_star(matrix, visited, came_from, gScore, fScore, open_set) do
+  def part_two() do
+    start = {0, 0, :at_rest}
+    came_from = Map.new()
+    gScore = Map.new() |> Map.put(start, 0)
+    fScore = Map.new() |> Map.put(start, 1)
+
+    matrix =
+      "input"
+      |> read_file!()
+      |> parse_matrix()
+
+    matrix
+    |> a_star(Map.new(), came_from, gScore, fScore, [start], ultra: true)
+    |> Enum.reverse()
+    |> Enum.chunk_every(2, 1, :discard)
+    |> Enum.map(fn [from, to] -> heat_lost_between(matrix, from, to) end)
+    |> Enum.sum()
+  end
+
+  defp a_star(matrix, visited, came_from, gScore, fScore, open_set, opts \\ []) do
     current_position =
       Enum.min(open_set, fn a, b ->
         Map.get(fScore, a) <= Map.get(fScore, b)
@@ -31,7 +50,7 @@ defmodule Day17 do
     if arrived?(matrix, current_position) do
       [current_position] ++ reconstruct_path(came_from, current_position)
     else
-      neighbors = movement_options(matrix, visited, current_position)
+      neighbors = movement_options(matrix, visited, current_position, opts)
 
       updates =
         Enum.map(neighbors, fn neighbor ->
@@ -78,7 +97,8 @@ defmodule Day17 do
         came_from_prime,
         gScore_prime,
         fScore_prime,
-        next_open_set -- [current_position]
+        next_open_set -- [current_position],
+        opts
       )
     end
   end
@@ -111,7 +131,26 @@ defmodule Day17 do
     matrix |> Enum.at(y) |> Enum.at(x)
   end
 
-  defp movement_options(matrix, previously_visited, {y, x, previous_direction}) do
+  defp movement_options(matrix, previously_visited, {y, x, previous_direction}, ultra: true) do
+    directions =
+      for i <- 4..10 do
+        [
+          {y, x + i, :right},
+          {y, x - i, :left},
+          {y + i, x, :down},
+          {y - i, x, :up}
+        ]
+      end
+
+    directions
+    |> List.flatten()
+    |> Enum.reject(&outside_city_limits?(matrix, &1))
+    |> Enum.reject(fn {_y, _x, dir} -> dir == previous_direction end)
+    |> Enum.reject(fn choice -> Map.has_key?(previously_visited, choice) end)
+    |> Enum.reject(&opposite_direction?(&1, previous_direction))
+  end
+
+  defp movement_options(matrix, previously_visited, {y, x, previous_direction}, []) do
     directions =
       for i <- 1..3 do
         [
