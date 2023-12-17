@@ -56,6 +56,11 @@ defmodule Mix.Tasks.Aoc do
     IO.puts(Day11.part_two())
   end
 
+  def run(["14"]) do
+    IO.puts(Day14.part_one())
+    # IO.puts(Day14.part_two())
+  end
+
   def run(["15"]) do
     IO.puts(Day15.part_one())
     IO.puts(Day15.part_two())
