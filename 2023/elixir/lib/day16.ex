@@ -2,11 +2,39 @@ defmodule Day16 do
   use AocTemplate
 
   def part_one() do
-    result =
+    "input"
+    |> read_file!()
+    |> parse_matrix()
+    |> count_tiles_energized({0, 0, :right})
+  end
+
+  def part_two() do
+    matrix =
       "input"
       |> read_file!()
       |> parse_matrix()
-      |> trace_path([], [{0, 0, :right}])
+
+    beam_combinations(matrix)
+    |> Enum.map(&count_tiles_energized(matrix, &1))
+    |> Enum.max()
+  end
+
+  defp beam_combinations(matrix) do
+    height = length(matrix) - 1
+    width = length(hd(matrix)) - 1
+
+    top = 0..width |> Enum.map(fn x -> {0, x, :down} end)
+    left = 0..height |> Enum.map(fn y -> {y, 0, :right} end)
+    right = 0..height |> Enum.map(fn y -> {y, width, :left} end)
+    bottom = 0..width |> Enum.map(fn x -> {height, x, :up} end)
+
+    top ++ left ++ right ++ bottom
+  end
+
+  defp count_tiles_energized(matrix, initial_beam) do
+    result =
+      matrix
+      |> trace_path([], [initial_beam])
       |> Enum.map(&ignoring_direction/1)
       |> MapSet.new()
       |> MapSet.size()
