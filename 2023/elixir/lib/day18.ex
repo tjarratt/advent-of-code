@@ -15,14 +15,39 @@ defmodule Day18 do
     |> calculate_area_using_shoelace()
   end
 
+  def part_two() do
+    instructions =
+      "input"
+      |> read_file!()
+      |> split_lines()
+      |> Enum.map(&parse_electric_boogaloo/1)
+
+    start = {0, 0}
+
+    instructions
+    |> dig_out_lagoon([start], start)
+    |> calculate_area_using_shoelace()
+  end
+
   defp calculate_area_using_shoelace(digsite) do
     digsite
     |> Enum.chunk_every(2, 1, :discard)
     |> Enum.reduce(0, fn [{y1, x1}, {y2, x2}], sum ->
       sum + x1 * y2 - x2 * y1
     end)
-    |> (fn sum -> sum + length(digsite) + 1 end).()
+    |> (fn sum -> sum + perimeter(digsite) + 2 end).()
     |> Integer.floor_div(2)
+  end
+
+  defp perimeter(digsite) do
+    digsite
+    |> Enum.chunk_every(2, 1, :discard)
+    |> Enum.map(&distance_between(&1))
+    |> Enum.sum()
+  end
+
+  defp distance_between([{y1, x1}, {y2, x2}]) do
+    abs(y2 - y1) + abs(x2 - x1)
   end
 
   def to_grid(digsite) do
@@ -50,57 +75,44 @@ defmodule Day18 do
   defp dig_out_lagoon(instructions, digsite, location) do
     [instruction | rest] = instructions
 
-    {next_location, freshly_dug} = dig(from: location, following: instruction)
+    next_location = dig(from: location, following: instruction)
 
-    dig_out_lagoon(rest, digsite ++ freshly_dug, next_location)
+    dig_out_lagoon(rest, digsite ++ [next_location], next_location)
   end
 
-  defp dig(from: {y, x} = current, following: {dir, distance, _rgb}) do
-    next_location =
-      case dir do
-        "R" -> {y, x + distance}
-        "L" -> {y, x - distance}
-        "U" -> {y - distance, x}
-        "D" -> {y + distance, x}
-      end
-
-    freshly_dug = squares_between(current, next_location)
-
-    {next_location, freshly_dug}
-  end
-
-  defp squares_between({y, x}, {yprime, x}) do
-    if yprime > y do
-      1..(yprime - y)
-      |> Enum.map(fn diff -> {y + diff, x} end)
-    else
-      1..(y - yprime)
-      |> Enum.map(fn diff -> {y - diff, x} end)
-    end
-  end
-
-  defp squares_between({y, x}, {y, xprime}) do
-    if xprime > x do
-      1..(xprime - x)
-      |> Enum.map(fn diff -> {y, x + diff} end)
-    else
-      1..(x - xprime)
-      |> Enum.map(fn diff -> {y, x - diff} end)
+  defp dig(from: {y, x}, following: {dir, distance}) do
+    case dir do
+      "R" -> {y, x + distance}
+      "L" -> {y, x - distance}
+      "U" -> {y - distance, x}
+      "D" -> {y + distance, x}
     end
   end
 
   defp parse(line) do
-    [dir, size, rest] = String.split(line, " ")
+    [dir, size, _rest] = String.split(line, " ")
+
+    {dir, String.to_integer(size)}
+  end
+
+  defp parse_electric_boogaloo(line) do
+    [_dir, _size, hex] = String.split(line, " ")
 
     <<_lparen::binary-size(1), _hash::binary-size(1), hex::binary-size(6),
-      _rparens::binary-size(1)>> = rest
+      _rparens::binary-size(1)>> = hex
 
-    [red, blue, green] =
-      hex
-      |> String.split("", trim: true)
-      |> Enum.chunk_every(2)
-      |> Enum.map(&Enum.join(&1, ""))
+    {first, last} = String.split_at(hex, 5)
 
-    {dir, String.to_integer(size), {red, green, blue}}
+    dir =
+      case last do
+        "0" -> "R"
+        "1" -> "D"
+        "2" -> "L"
+        "3" -> "U"
+      end
+
+    {distance, ""} = Integer.parse(first, 16)
+
+    {dir, distance}
   end
 end
