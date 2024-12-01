@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.Aoc do
   use Mix.Task
-  
+
   def run([day]) do
     module_name = "Elixir.Day#{String.pad_leading(day, 2, "0")}" |> String.to_atom()
 
@@ -20,14 +20,14 @@ defmodule Mix.Tasks.Aoc do
     has_part_two = function_exported?(module, :part_two, 0)
 
     case {has_part_one, has_part_two} do
-      {true, true} -> 
+      {true, true} ->
         IO.puts(module.part_one())
         IO.puts(module.part_two())
 
       {true, false} ->
         IO.puts(module.part_one())
 
-      _ -> 
+      _ ->
         IO.puts("No solution functions found on module #{module}")
     end
   end
