@@ -5,3 +5,6 @@
 
 # do not store solutions -- Eric has asked nicely
 **/input
+
+# ignore direnv artifacts
+.direnv
