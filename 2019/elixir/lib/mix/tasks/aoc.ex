@@ -1,35 +1,39 @@
 defmodule Mix.Tasks.Aoc do
   use Mix.Task
 
-  def run(["1"]) do
-    IO.puts(Day01.part_one())
-    IO.puts(Day01.part_two())
+  def run([day]) do
+    module_name = "Elixir.Day#{String.pad_leading(day, 2, "0")}" |> String.to_atom()
+
+    case Code.ensure_loaded(module_name) do
+      {:module, module} ->
+        run_solutions(module)
+
+      {:error, _reason} ->
+        no_such_day_error(day)
+    end
   end
 
-  def run(["2"]) do
-    IO.puts(Day02.part_one())
-    IO.puts(Day02.part_two())
+  def run(otherwise), do: no_such_day_error(otherwise)
+
+  defp run_solutions(module) do
+    has_part_one = function_exported?(module, :part_one, 0)
+    has_part_two = function_exported?(module, :part_two, 0)
+
+    case {has_part_one, has_part_two} do
+      {true, true} ->
+        IO.puts(module.part_one())
+        IO.puts(module.part_two())
+
+      {true, false} ->
+        IO.puts(module.part_one())
+
+      _ ->
+        IO.puts("No solution functions found on module #{module}")
+    end
   end
 
-  def run(["3"]) do
-    IO.puts(Day03.part_one())
-    IO.puts(Day03.part_two())
-  end
-
-  def run(["4"]) do
-    IO.puts(Day04.part_one())
-    IO.puts(Day04.part_two())
-  end
-
-  def run(["5"]) do
-    IO.puts(Day05.part_one())
-  end
-
-  @shortdoc "Calculate solution(s) for Day 1"
-  @moduledoc """
-  A custom mix task that runs the code to calculate solutions for Advent of Code 2022
-  """
-  def run(_) do
-    IO.puts("Sorry, that day hasn't been written yet")
+  defp no_such_day_error(input) do
+    IO.puts("Sorry, there is no solution for day #{inspect(input)}")
+    exit(1)
   end
 end
