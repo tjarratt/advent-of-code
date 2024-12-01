@@ -11,6 +11,15 @@ defmodule Day01 do
     |> Enum.sum()
   end
 
+  def part_two() do
+    "input"
+    |> read_file!()
+    |> split_lines()
+    |> parse()
+    |> compute_similarity()
+    |> Enum.sum()
+  end
+
   defp parse(lines) do
     lines
     |> Enum.map(fn line ->
@@ -32,5 +41,11 @@ defmodule Day01 do
   defp compute_distance({first, second}) do
     Enum.zip(first, second)
     |> Enum.map(fn {first, second} -> abs(first - second) end)
+  end
+
+  defp compute_similarity({first, second}) do
+    frequencies = Enum.frequencies(second)
+
+    Enum.map(first, fn id -> id * Map.get(frequencies, id, 0) end)
   end
 end
