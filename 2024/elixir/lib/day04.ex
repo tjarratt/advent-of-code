@@ -12,6 +12,19 @@ defmodule Day04 do
     |> Enum.reduce(0, fn coord, acc -> count_xmas(grid, coord, acc) end)
   end
 
+  def part_two() do
+    grid =
+      "input"
+      |> read_file!()
+      |> to_coordinate_grid()
+
+    grid
+    |> find_all_a_coords()
+    |> Enum.reduce(0, fn coord, acc -> count_cross_mas(grid, coord, acc) end)
+  end
+
+  # # # part one
+
   defp find_possible_xmas_coords(grid) do
     max_x = length(grid) - 1
     max_y = length(hd(grid)) - 1
@@ -120,6 +133,41 @@ defmodule Day04 do
       acc
     end
   end
+
+  # # # part two
+
+  defp find_all_a_coords(grid) do
+    max_x = length(grid) - 1
+    max_y = length(hd(grid)) - 1
+
+    for x <- 0..max_x, y <- 0..max_y, value = safe_get_at(grid, x, y), value == "A" do
+      %{value: value, coordinate: {x, y}}
+    end
+  end
+
+  defp count_cross_mas(grid, %{coordinate: {x, y}}, acc) do
+    diag_1 =
+      [
+        safe_get_at(grid, x - 1, y + 1),
+        safe_get_at(grid, x + 1, y - 1)
+      ]
+      |> Enum.sort()
+
+    diag_2 =
+      [
+        safe_get_at(grid, x - 1, y - 1),
+        safe_get_at(grid, x + 1, y + 1)
+      ]
+      |> Enum.sort()
+
+    if safe_get_at(grid, x, y) == "A" and diag_1 == ["M", "S"] and diag_2 == ["M", "S"] do
+      acc + 1
+    else
+      acc
+    end
+  end
+
+  # # # common
 
   defp to_coordinate_grid(input) do
     input
