@@ -13,9 +13,9 @@ defmodule Day05 do
   end
 
   defp filter_valid({rules, updates}) do
-    Enum.reject(updates, fn update ->
-      update |> Enum.reverse() |> out_of_order?(rules)
-    end)
+    updates
+    |> Enum.map(&Enum.reverse/1)
+    |> Enum.reject(&out_of_order?(&1, rules))
   end
 
   # for each page (in reverse order)
