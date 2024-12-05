@@ -12,6 +12,39 @@ defmodule Day05 do
     |> Enum.sum()
   end
 
+  def part_two() do
+    "input"
+    |> read_file!()
+    |> String.split("\n\n")
+    |> then(fn [rules, updates] -> {parse(rules, :rules), parse(updates, :updates)} end)
+    |> filter_invalid()
+    |> correct_ordering()
+    |> Enum.map(&middle_page/1)
+    |> Enum.map(&String.to_integer/1)
+    |> Enum.sum()
+  end
+
+  defp correct_ordering({rules, updates}) do
+    Enum.map(
+      updates,
+      &Enum.sort(&1, fn a, b ->
+        cond do
+          a in Map.get(rules, b, []) -> false
+          b in Map.get(rules, a, []) -> true
+          true -> true
+        end
+      end)
+    )
+  end
+
+  defp filter_invalid({rules, updates}) do
+    updates
+    |> Enum.map(&Enum.reverse/1)
+    |> Enum.filter(&out_of_order?(&1, rules))
+    |> Enum.map(&Enum.reverse/1)
+    |> then(fn updates -> {rules, updates} end)
+  end
+
   defp filter_valid({rules, updates}) do
     updates
     |> Enum.map(&Enum.reverse/1)
