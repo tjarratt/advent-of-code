@@ -113,7 +113,7 @@ defmodule Day06 do
   defmodule Grid do
     def parse(file) do
       file
-      |> String.split("\n")
+      |> String.split("\n", trim: true)
       |> Enum.map(&String.split(&1, "", trim: true))
       |> Enum.with_index()
       |> Enum.map(fn {line, y_index} -> {Enum.with_index(line), y_index} end)
