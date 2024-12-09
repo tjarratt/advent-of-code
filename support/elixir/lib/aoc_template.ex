@@ -11,7 +11,7 @@ defmodule AocTemplate do
         delimiter = Keyword.get(opts, :on, "\n")
 
         content
-        |> String.split(delimiter)
+        |> String.split(delimiter, trim: true)
         |> Enum.reject(fn line -> String.length(line) == 0 end)
       end
     end
