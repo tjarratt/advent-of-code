@@ -2,7 +2,7 @@ defmodule Day10 do
   use AocTemplate
 
   def part_one() do
-    {map, _max_y, _max_x, starting_points} =
+    {map, starting_points} =
       "input"
       |> read_file!()
       |> split_lines()
@@ -16,18 +16,44 @@ defmodule Day10 do
     |> Enum.sum()
   end
 
+  def part_two() do
+    {map, starting_points} =
+      "input"
+      |> read_file!()
+      |> split_lines()
+      |> Enum.map(&String.split(&1, "", trim: true))
+      |> parse_to_map()
+
+    starting_points
+    |> Enum.map(&unique_paths(&1, map))
+    |> Enum.sum()
+  end
+
+  # # # part 2
+
+  defp unique_paths(trailhead, map) do
+    if Map.get(map, trailhead) == "9" do
+      1
+    else
+      [:up, :right, :down, :left]
+      |> Enum.map(&next_step?(&1, trailhead, map))
+      |> Enum.filter(&(&1 != nil))
+      |> Enum.map(&unique_paths(&1, map))
+      |> Enum.sum()
+    end
+  end
+
+  # # # part 1
+
   defp score(trailhead, trails, map) do
     trails = trails |> Enum.map(&(&1 ++ [trailhead]))
 
     if Map.get(map, trailhead) == "9" do
       trailhead
     else
-      next_steps =
-        [:up, :right, :down, :left]
-        |> Enum.map(&next_step?(&1, trailhead, map))
-        |> Enum.filter(&(&1 != nil))
-
-      next_steps
+      [:up, :right, :down, :left]
+      |> Enum.map(&next_step?(&1, trailhead, map))
+      |> Enum.filter(&(&1 != nil))
       |> Enum.map(&score(&1, trails, map))
       |> List.flatten()
     end
@@ -73,18 +99,12 @@ defmodule Day10 do
       |> List.flatten()
       |> Enum.into(Map.new())
 
-    {max_y, max_x} =
-      map
-      |> Map.keys()
-      |> Enum.unzip()
-      |> then(fn {ys, xs} -> {Enum.max(ys), Enum.max(xs)} end)
-
     starting_points =
       map
       |> Map.filter(fn {_coords, value} -> value == "0" end)
       |> Map.to_list()
       |> Enum.map(&elem(&1, 0))
 
-    {map, max_y, max_x, starting_points}
+    {map, starting_points}
   end
 end
