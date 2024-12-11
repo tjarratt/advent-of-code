@@ -33,22 +33,24 @@ defmodule Day11 do
     else
       new_stones = evolve(stone)
 
-      cond do
-        is_list(new_stones) and length(new_stones) == 2 ->
-          [a, b] = new_stones
+      length =
+        cond do
+          is_list(new_stones) and length(new_stones) == 2 ->
+            [a, b] = new_stones
 
-          a1 = blink_once(a, memoizer: pid, times: how_many - 1)
-          b1 = blink_once(b, memoizer: pid, times: how_many - 1)
+            a1 = blink_once(a, memoizer: pid, times: how_many - 1)
+            b1 = blink_once(b, memoizer: pid, times: how_many - 1)
 
-          Day11.Memoizer.cache(pid, stone, how_many, a1 + b1)
-          a1 + b1
+            a1 + b1
 
-        true ->
-          length = blink_once(new_stones, memoizer: pid, times: how_many - 1)
+          true ->
+            length = blink_once(new_stones, memoizer: pid, times: how_many - 1)
 
-          Day11.Memoizer.cache(pid, stone, how_many, length)
-          length
-      end
+            length
+        end
+
+      Day11.Memoizer.cache(pid, stone, how_many, length)
+      length
     end
   end
 
