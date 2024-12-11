@@ -4,7 +4,7 @@ defmodule AocTemplate do
       def read_file!(name) do
         "Elixir.Day" <> day = Atom.to_string(__MODULE__)
 
-        File.read!(Path.join(["resources", day, name]))
+        File.read!(Path.join(["resources", day, name])) |> String.trim()
       end
 
       def split_lines(content, opts \\ []) do
