@@ -35,13 +35,13 @@ defmodule Day12 do
     # for each crop, walk outwards from each point
     # building up each plot, taking care not to re-consider a plot more than once
     # and then take the unique collection of plots
-    {plots, _memo} =
+    plots =
       locations
       |> Enum.filter(fn {_coords, planted} -> plant == planted end)
-      |> Enum.reduce({[], MapSet.new()}, fn location, {list, memo} ->
-        {neighbors, new_memo} =
+      |> Enum.map(fn location ->
+        neighbors =
           location
-          |> identify_neighbors(grid, memo)
+          |> identify_neighbors(grid)
 
         result =
           neighbors
@@ -50,7 +50,7 @@ defmodule Day12 do
           |> MapSet.new()
           |> MapSet.to_list()
 
-        {[result | list], new_memo}
+        result
       end)
 
     plots
@@ -58,9 +58,9 @@ defmodule Day12 do
     |> Enum.reject(&(&1 == []))
   end
 
-  defp identify_neighbors({{y, x}, plant} = location, grid, already_seen) do
+  defp identify_neighbors({{y, x}, plant} = location, grid) do
     if Day12.Memoizer.cached?(location) do
-      {[], already_seen}
+      []
     else
       neighbors =
         [{-1, 0}, {1, 0}, {0, -1}, {0, 1}]
@@ -73,14 +73,11 @@ defmodule Day12 do
       new_neighbors = Enum.reject(neighbors, &Day12.Memoizer.cached?(&1))
       Day12.Memoizer.cache(location)
 
-      {rest, newly_seen} =
+      rest =
         new_neighbors
-        |> Enum.map(&identify_neighbors(&1, grid, already_seen))
-        |> Enum.reduce({[], MapSet.new()}, fn {list, map}, {acc_list, acc_map} ->
-          {acc_list ++ list, MapSet.union(acc_map, map)}
-        end)
+        |> Enum.map(&identify_neighbors(&1, grid))
 
-      {[{{y, x}, plant, 4 - length(neighbors)}] ++ rest, MapSet.union(already_seen, newly_seen)}
+      [{{y, x}, plant, 4 - length(neighbors)}] ++ rest
     end
   end
 
