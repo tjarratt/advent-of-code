@@ -35,25 +35,22 @@ defmodule Day12 do
     # for each crop, walk outwards from each point
     # building up each plot, taking care not to re-consider a plot more than once
     # and then take the unique collection of plots
-    plots =
-      locations
-      |> Enum.filter(fn {_coords, planted} -> plant == planted end)
-      |> Enum.map(fn location ->
-        neighbors =
-          location
-          |> identify_neighbors(grid)
+    locations
+    |> Enum.filter(fn {_coords, planted} -> plant == planted end)
+    |> Enum.map(fn location ->
+      neighbors =
+        location
+        |> identify_neighbors(grid)
 
-        result =
-          neighbors
-          |> List.flatten()
-          |> Enum.uniq()
-          |> MapSet.new()
-          |> MapSet.to_list()
+      result =
+        neighbors
+        |> List.flatten()
+        |> Enum.uniq()
+        |> MapSet.new()
+        |> MapSet.to_list()
 
-        result
-      end)
-
-    plots
+      result
+    end)
     |> Enum.uniq()
     |> Enum.reject(&(&1 == []))
   end
