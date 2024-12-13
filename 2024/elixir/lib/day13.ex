@@ -11,8 +11,30 @@ defmodule Day13 do
     |> Enum.sum()
   end
 
+  @offset 10_000_000_000_000
+
+  def part_two() do
+    "input"
+    |> read_file!()
+    |> parse()
+    |> Enum.map(fn {a, b, [px, py]} -> {a, b, [px + @offset, py + @offset]} end)
+    |> Enum.map(&still_solveable?/1)
+    |> Enum.filter(&(!!&1))
+    |> Enum.map(&to_tokens/1)
+    |> Enum.sum()
+  end
+
   defp to_tokens([a_presses, b_presses]) do
     a_presses * 3 + b_presses
+  end
+
+  defp still_solveable?({[ax, ay], [bx, by], [px, py]}) do
+    a_presses = (by * px - bx * py) / (by * ax - bx * ay)
+    b_presses = (ay * px - ax * py) / (ay * bx - ax * by)
+
+    if a_presses == Float.floor(a_presses) and b_presses == Float.floor(b_presses) do
+      [a_presses, b_presses] |> Enum.map(&trunc/1)
+    end
   end
 
   defp solveable?({[ax, ay], [bx, by], [px, py]}) do
