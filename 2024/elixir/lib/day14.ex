@@ -15,6 +15,49 @@ defmodule Day14 do
     |> Enum.product()
   end
 
+  def part_two() do
+    "input"
+    |> read_file!()
+    |> split_lines()
+    |> Enum.map(&parse_line/1)
+    |> check_for_tree()
+  end
+
+  defp check_for_tree(robots) do
+    Enum.reduce(1..10_000, robots, fn seconds_elapsed, robots ->
+      new_robots = robots |> Enum.map(&tick(&1, 1))
+
+      if Integer.mod(seconds_elapsed, 103) == 12, do: pp(new_robots, seconds_elapsed)
+
+      new_robots
+    end)
+  end
+
+  @max_width 101
+  @max_height 103
+
+  defp pp(robots, seconds_elapsed) do
+    robot_map = robots |> Enum.into(%{})
+
+    for y <- 0..@max_height do
+      for x <- 0..@max_width do
+        if Map.has_key?(robot_map, [x, y]) do
+          IO.write("*")
+        else
+          IO.write(".")
+        end
+      end
+
+      IO.puts("")
+    end
+
+    IO.puts("")
+    IO.puts("... after #{seconds_elapsed} seconds")
+    IO.gets("")
+
+    robots
+  end
+
   defp tick(robot_info, 0), do: robot_info
 
   defp tick({[px, py], [vx, vy] = velocity}, seconds) do
@@ -22,9 +65,6 @@ defmodule Day14 do
 
     tick({new_position, velocity}, seconds - 1)
   end
-
-  @max_width 101
-  @max_height 103
 
   defp wrap([px, py]) do
     [Integer.mod(px, @max_width), Integer.mod(py, @max_height)]
