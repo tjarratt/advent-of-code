@@ -11,6 +11,17 @@ defmodule Day16 do
     |> score()
   end
 
+  def part_two() do
+    "input"
+    |> read_file!()
+    |> parse()
+    |> best_paths()
+    |> Enum.map(fn path -> path |> Enum.map(&elem(&1, 0)) end)
+    |> List.flatten()
+    |> Enum.uniq()
+    |> length()
+  end
+
   defp score(moves) do
     moves
     |> Enum.chunk_every(2, 1, :discard)
@@ -30,6 +41,26 @@ defmodule Day16 do
     fScore = Map.new() |> Map.put(current_location, 1)
 
     a_star(map, finish, visited, came_from, gScore, fScore, [current_location])
+  end
+
+  # # # part 2
+
+  defp best_paths({map, current_location, finish}) do
+    visited = Map.new()
+    came_from = Map.new()
+    gScore = Map.new() |> Map.put(current_location, 0)
+    fScore = Map.new() |> Map.put(current_location, 1)
+
+    a_star_all_paths(
+      map,
+      finish,
+      visited,
+      came_from,
+      gScore,
+      fScore,
+      [current_location],
+      @effectively_infinity
+    )
   end
 
   # # # A* algorithm
@@ -93,6 +124,103 @@ defmodule Day16 do
     end
   end
 
+  defp a_star_all_paths(
+         map,
+         destination,
+         visited,
+         came_from,
+         gScore,
+         fScore,
+         open_set,
+         winning_score
+       ) do
+    {current_position, current_score} =
+      open_set
+      |> Enum.map(&{&1, Map.get(fScore, &1)})
+      |> Enum.sort(fn {_, a}, {_, b} -> a < b end)
+      |> hd()
+
+    cond do
+      current_score > winning_score ->
+        []
+
+      at_destination?(current_position, destination) ->
+        winner = [current_position | reconstruct_path(came_from, current_position, :part_two)]
+
+        # continue to recurse all other paths
+        new_open_set = (open_set -- [current_position]) |> Enum.uniq()
+
+        [
+          winner
+          | a_star_all_paths(
+              map,
+              destination,
+              visited,
+              came_from,
+              gScore,
+              fScore,
+              new_open_set,
+              current_score
+            )
+        ]
+
+      true ->
+        updates =
+          map
+          |> next_moves(visited, current_position)
+          |> Enum.map(fn {neighbor, cost} ->
+            tentative_gscore = cost + Map.get(gScore, current_position, @effectively_infinity)
+
+            if tentative_gscore <= Map.get(gScore, neighbor, @effectively_infinity) do
+              [neighbor: neighbor, gScore: tentative_gscore, fScore: tentative_gscore]
+            else
+              nil
+            end
+          end)
+          |> Enum.filter(&(!!&1))
+
+        open_set_prime = updates |> Enum.map(&Keyword.get(&1, :neighbor))
+
+        came_from_prime =
+          Enum.reduce(open_set_prime, came_from, fn neighbor, acc ->
+            Map.update(acc, neighbor, [current_position], fn existing ->
+              [current_position | existing]
+            end)
+          end)
+
+        gScore_prime =
+          updates
+          |> Enum.map(fn update ->
+            {Keyword.get(update, :neighbor), Keyword.get(update, :gScore)}
+          end)
+          |> Enum.reduce(fScore, fn {neighbor, score}, acc ->
+            Map.put(acc, neighbor, score)
+          end)
+
+        fScore_prime =
+          updates
+          |> Enum.map(fn update ->
+            {Keyword.get(update, :neighbor), Keyword.get(update, :fScore)}
+          end)
+          |> Enum.reduce(fScore, fn {neighbor, score}, acc ->
+            Map.put(acc, neighbor, score)
+          end)
+
+        next_open_set = (open_set ++ open_set_prime) |> Enum.uniq()
+
+        a_star_all_paths(
+          map,
+          destination,
+          Map.put(visited, current_position, true),
+          came_from_prime,
+          gScore_prime,
+          fScore_prime,
+          next_open_set -- [current_position],
+          winning_score
+        )
+    end
+  end
+
   defp at_destination?({coords, _facing}, destination), do: coords == destination
 
   defp reconstruct_path(came_from, current) do
@@ -103,6 +231,21 @@ defmodule Day16 do
       previous ->
         [previous | reconstruct_path(came_from, previous)]
     end
+  end
+
+  defp reconstruct_path(came_from, current, :part_two) do
+    case Map.get(came_from, current) do
+      nil ->
+        []
+
+      locations ->
+        locations
+    end
+    |> Enum.uniq()
+    |> Enum.map(fn loc ->
+      [loc | reconstruct_path(came_from, loc, :part_two)]
+    end)
+    |> List.flatten()
   end
 
   defp next_moves(map, visited, {{y, x}, direction}) do
