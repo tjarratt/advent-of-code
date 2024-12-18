@@ -9,17 +9,68 @@ defmodule Day18 do
   @max_width 70
 
   @goal {70, 70}
-  @how_many 1024
 
   def part_one() do
     "input"
     |> read_file!()
+    |> obstacles(max: 1024)
     |> build_map()
     |> shortest_path({0, 0})
     |> length()
     # first step doesn't count
     |> Kernel.-(1)
   end
+
+  def part_two() do
+    # magic number determined by doing binary search by hand
+    # be lazy, be smart, be caveman
+    obstacles =
+      "input"
+      |> read_file!()
+      |> obstacles(max: 2912)
+
+    obstacles
+    |> build_map()
+    |> flood()
+    |> can_reach_origin?
+
+    obstacles |> List.last() |> then(fn {y, x} -> "#{x},#{y}" end)
+
+    # optimisation strategies that might be worth trying
+    # we can walk backwards from the end of the input
+    # we can walk forwards from 1024
+    # we can use binary search of the space 1024..sizeof(input)
+  end
+
+  # # # part 2
+
+  defp flood(obstacles) do
+    visited = MapSet.new()
+    visit_next = MapSet.new() |> MapSet.put(@goal)
+
+    flood_fill(obstacles, visited, visit_next)
+  end
+
+  defp flood_fill(obstacles, visited, visit_next) do
+    if MapSet.size(visit_next) == 0 do
+      visited
+    else
+      next_squares =
+        visit_next
+        |> Enum.flat_map(fn location -> next_moves(location, visited, obstacles) end)
+        |> MapSet.new()
+
+      visited = MapSet.union(visited, next_squares)
+
+      flood_fill(obstacles, visited, next_squares)
+    end
+  end
+
+  defp can_reach_origin?(squares_visited) do
+    MapSet.member?(squares_visited, {0, 0})
+  end
+
+  # # # part 1
 
   defp shortest_path(obstacles, starting_position) do
     visited = MapSet.new()
@@ -119,14 +170,15 @@ defmodule Day18 do
 
   # # # parsing
 
-  def build_map(contents) do
+  defp obstacles(contents, max: how_many) do
     contents
     |> split_lines()
     |> Enum.map(fn line ->
       [x, y] = String.split(line, ",", trim: true)
       {String.to_integer(y), String.to_integer(x)}
     end)
-    |> Enum.take(@how_many)
-    |> Enum.into(MapSet.new())
+    |> Enum.take(how_many)
   end
+
+  defp build_map(obstacles), do: obstacles |> Enum.into(MapSet.new())
 end
