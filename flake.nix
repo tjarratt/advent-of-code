@@ -10,7 +10,7 @@
     {
       devShells.aarch64-darwin.default = pkgs.mkShell {
         packages = [
-          pkgs.elixir
+          pkgs.elixir_1_19
           pkgs.elixir-ls
         ];
       };
